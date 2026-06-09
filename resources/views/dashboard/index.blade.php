@@ -65,11 +65,15 @@
 
     <!-- Charts Row -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-        @component('components.chart-placeholder', ['title' => 'Tren Harga Komoditas', 'height' => 72])
-        @endcomponent
+        <div class="bg-white rounded-lg shadow-md p-6 border border-gray-200">
+            <h3 class="text-lg font-semibold text-gray-800 mb-4">Tren Harga Komoditas (30 Hari)</h3>
+            <canvas id="priceTrendChart" height="180"></canvas>
+        </div>
 
-        @component('components.chart-placeholder', ['title' => 'Perbandingan Harga per Wilayah', 'height' => 72])
-        @endcomponent
+        <div class="bg-white rounded-lg shadow-md p-6 border border-gray-200">
+            <h3 class="text-lg font-semibold text-gray-800 mb-4">Perbandingan Harga per Wilayah (30 Hari)</h3>
+            <canvas id="regionComparisonChart" height="180"></canvas>
+        </div>
     </div>
 
     <!-- Trending Commodities -->
@@ -133,14 +137,12 @@
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200">
                     @forelse($viewModel->latestPrices as $price)
-                        <tr class="hover:bg-gray-50">
+                        <tr class="hover:bg-blue-50 transition-colors odd:bg-gray-50/50">
                             <td class="px-6 py-4 text-sm text-gray-500">{{ $price->id }}</td>
-                            <td class="px-6 py-4 text-sm text-gray-800">{{ $price->commodity_id }}</td>
-                            <td class="px-6 py-4 text-sm text-gray-800">{{ $price->region_id }}</td>
+                            <td class="px-6 py-4 text-sm text-gray-800">{{ $price->commodity_name }}</td>
+                            <td class="px-6 py-4 text-sm text-gray-800">{{ $price->region_name }}</td>
                             <td class="px-6 py-4">
-                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                                    {{ $price->price }}
-                                </span>
+                                <x-price-badge :amount="$price->price_raw" />
                             </td>
                             <td class="px-6 py-4 text-sm text-gray-500">{{ $price->recorded_date }}</td>
                             <td class="px-6 py-4 text-sm text-gray-500">{{ $price->source ?? '-' }}</td>
@@ -157,3 +159,81 @@
         </div>
     </div>
 @endsection
+
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const trendLabels = @json($viewModel->priceTrendLabels);
+    const trendData = @json($viewModel->priceTrendData);
+    const regionLabels = @json($viewModel->regionComparisonLabels);
+    const regionData = @json($viewModel->regionComparisonData);
+
+    if (window.Chart && trendLabels.length > 0) {
+        const trendCtx = document.getElementById('priceTrendChart').getContext('2d');
+        new Chart(trendCtx, {
+            type: 'line',
+            data: {
+                labels: trendLabels,
+                datasets: [{
+                    label: 'Rata-rata Harga',
+                    data: trendData,
+                    borderColor: '#3b82f6',
+                    backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                    fill: true,
+                    tension: 0.3
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: false,
+                        ticks: {
+                            callback: function(value) {
+                                return 'Rp ' + value.toLocaleString('id-ID');
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        const regionCtx = document.getElementById('regionComparisonChart').getContext('2d');
+        new Chart(regionCtx, {
+            type: 'bar',
+            data: {
+                labels: regionLabels,
+                datasets: [{
+                    label: 'Rata-rata Harga',
+                    data: regionData,
+                    backgroundColor: 'rgba(59, 130, 246, 0.7)',
+                    borderColor: '#3b82f6',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: false,
+                        ticks: {
+                            callback: function(value) {
+                                return 'Rp ' + value.toLocaleString('id-ID');
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+});
+</script>
+@endpush

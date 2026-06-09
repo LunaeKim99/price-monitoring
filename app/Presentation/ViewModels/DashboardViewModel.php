@@ -13,6 +13,10 @@ class DashboardViewModel
         public readonly array $trendingCommodities,
         public readonly string $trendDirection,
         public readonly string $lastUpdated,
+        public readonly array $priceTrendLabels = [],
+        public readonly array $priceTrendData = [],
+        public readonly array $regionComparisonLabels = [],
+        public readonly array $regionComparisonData = [],
     ) {
     }
 
@@ -27,6 +31,10 @@ class DashboardViewModel
             trendingCommodities: $data['trending_commodities'],
             trendDirection: $data['trend_direction'] ?? 'stable',
             lastUpdated: $data['last_updated'] ?? now()->format('Y-m-d H:i:s'),
+            priceTrendLabels: $data['price_trend_labels'] ?? [],
+            priceTrendData: $data['price_trend_data'] ?? [],
+            regionComparisonLabels: $data['region_comparison_labels'] ?? [],
+            regionComparisonData: $data['region_comparison_data'] ?? [],
         );
     }
 }

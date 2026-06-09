@@ -60,12 +60,45 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.1.0] — 2026-06-09
+
+### Added
+
+#### 📈 Charts & Visualization
+- **Chart.js integration**: Price trend line chart (30-day average) and region comparison bar chart on the dashboard
+- **Chart.js bundled** via npm (`chart.js/auto`) and exposed on `window.Chart` for Blade views
+
+#### 🔮 Price Predictions
+- **Prediction engine**: Simple Moving Average (SMA-7) + Linear Regression forecasting algorithm
+- **Confidence scoring**: Standard deviation-based confidence metric (0–100%) displayed per prediction
+- **Prediction CRUD**: Generate, list, and delete predictions with full form validation
+- **Configurable periods**: Users can generate 7, 14, or 30-day forecasts for any commodity+region pair
+- **Old prediction cleanup**: Regenerating predictions automatically replaces previous forecasts for the same commodity+region
+- **Database transaction safety**: Delete + create cycle wrapped in `DB::transaction()` to prevent data loss on failure
+
+#### 🏷️ Display Improvements
+- **Commodity/region names**: Tables now show friendly names instead of raw numeric IDs (lookup maps built at Bloc/Controller layer)
+- **Parent region name resolution**: Region index resolves parent IDs to region names
+
+### Fixed
+
+- **Duplicate flash messages**: Predictions index no longer renders its own flash blocks (layout already handles them)
+- **Confidence precision**: Aligned `round($confidence, 2)` with DB `decimal(5,2)` schema to prevent silent truncation
+- **Delete return value**: `PredictionController::destroy()` now checks the boolean return and shows error on missing ID
+- **Sample standard deviation**: Changed from population (`/n`) to sample (`/n-1`) formula for statistical correctness
+- **PSR-12 spacing**: Fixed string concatenation spacing in `GetDashboardDataUseCase`
+- **Type safety**: `getLastRecordDate()` now has a proper `Collection` parameter type hint
+
+### Security
+
+- **Database transaction**: Prediction regeneration is now atomic — old predictions are only deleted after new ones are successfully created
+
+---
+
 ## [Unreleased]
 
 ### Planned
 
-- [ ] Chart.js integration for visual price trends
-- [ ] Price prediction engine with confidence scoring
 - [ ] CSV/Excel import/export for price records
 - [ ] MySQL production-ready configuration
 - [ ] MongoDB repository adapter
@@ -81,6 +114,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ```bash
 # Update version in config/app.php
 # Commit changes
-git tag v1.0.0
-git push origin v1.0.0
+git tag v1.1.0
+git push origin v1.1.0
 ```

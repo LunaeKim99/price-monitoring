@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\CommodityController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\PredictionController;
 use App\Http\Controllers\PriceRecordController;
 use App\Http\Controllers\RegionController;
 use App\Http\Controllers\SessionController;
@@ -36,4 +37,11 @@ Route::middleware('auth')->group(function () {
 
     Route::resource('price-records', PriceRecordController::class)
         ->only(['index', 'create', 'store']);
+
+    Route::prefix('predictions')->name('predictions.')->group(function () {
+        Route::get('/', [PredictionController::class, 'index'])->name('index');
+        Route::get('/create', [PredictionController::class, 'create'])->name('create');
+        Route::post('/generate', [PredictionController::class, 'generate'])->name('generate');
+        Route::delete('/{id}', [PredictionController::class, 'destroy'])->name('destroy');
+    });
 });

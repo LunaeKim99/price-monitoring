@@ -4,6 +4,8 @@ namespace App\Presentation\Blocs;
 
 use App\Application\Services\PriceCalculationService;
 use App\Application\UseCases\GetDashboardDataUseCase;
+use App\Domain\Repositories\CommodityRepositoryInterface;
+use App\Domain\Repositories\RegionRepositoryInterface;
 use App\Presentation\ViewModels\DashboardViewModel;
 
 class DashboardBloc
@@ -11,6 +13,8 @@ class DashboardBloc
     public function __construct(
         private GetDashboardDataUseCase $getDashboardDataUseCase,
         private PriceCalculationService $priceCalculationService,
+        private CommodityRepositoryInterface $commodityRepository,
+        private RegionRepositoryInterface $regionRepository,
     ) {
     }
 
@@ -21,11 +25,22 @@ class DashboardBloc
         $prices = array_map(fn($record) => $record->getPrice(), $dto->latestPrices);
         $trend = $this->priceCalculationService->calculateTrend($prices);
 
-        $latestPricesData = array_map(function ($record) {
+        $commodityMap = [];
+        foreach ($this->commodityRepository->all() as $c) {
+            $commodityMap[$c->getId()] = $c->getName();
+        }
+        $regionMap = [];
+        foreach ($this->regionRepository->all() as $r) {
+            $regionMap[$r->getId()] = $r->getName();
+        }
+
+        $latestPricesData = array_map(function ($record) use ($commodityMap, $regionMap) {
             return (object) [
                 'id' => $record->getId(),
                 'commodity_id' => $record->getCommodityId(),
                 'region_id' => $record->getRegionId(),
+                'commodity_name' => $commodityMap[$record->getCommodityId()] ?? 'Unknown',
+                'region_name' => $regionMap[$record->getRegionId()] ?? 'Unknown',
                 'price' => $this->priceCalculationService->formatPrice($record->getPrice()),
                 'price_raw' => $record->getPrice(),
                 'recorded_date' => $record->getRecordedDate()->format('Y-m-d'),
@@ -51,6 +66,10 @@ class DashboardBloc
             'trending_commodities' => $trendingData,
             'trend_direction' => $trend,
             'last_updated' => now()->format('Y-m-d H:i:s'),
+            'price_trend_labels' => $dto->priceTrendLabels,
+            'price_trend_data' => $dto->priceTrendData,
+            'region_comparison_labels' => $dto->regionComparisonLabels,
+            'region_comparison_data' => $dto->regionComparisonData,
         ]);
     }
 }

@@ -3,6 +3,17 @@
 @section('title', 'Data Harga')
 
 @section('content')
+    @php
+        $commodityMap = [];
+        foreach ($viewModel->commodities as $c) {
+            $commodityMap[$c->getId()] = $c->getName();
+        }
+        $regionMap = [];
+        foreach ($viewModel->regions as $r) {
+            $regionMap[$r->getId()] = $r->getName();
+        }
+    @endphp
+
     <div class="flex items-center justify-between mb-6">
         <div>
             <h2 class="text-2xl font-bold text-gray-800">Data Harga Komoditas</h2>
@@ -37,14 +48,12 @@
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200">
                     @forelse($viewModel->prices as $record)
-                        <tr class="hover:bg-gray-50">
+                        <tr class="hover:bg-blue-50 transition-colors odd:bg-gray-50/50">
                             <td class="px-6 py-4 text-sm text-gray-500">{{ $record->getId() }}</td>
-                            <td class="px-6 py-4 text-sm text-gray-800">{{ $record->getCommodityId() }}</td>
-                            <td class="px-6 py-4 text-sm text-gray-800">{{ $record->getRegionId() }}</td>
+                            <td class="px-6 py-4 text-sm text-gray-800">{{ $commodityMap[$record->getCommodityId()] ?? 'ID: '.$record->getCommodityId() }}</td>
+                            <td class="px-6 py-4 text-sm text-gray-800">{{ $regionMap[$record->getRegionId()] ?? 'ID: '.$record->getRegionId() }}</td>
                             <td class="px-6 py-4">
-                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                                    Rp {{ number_format($record->getPrice(), 0, ',', '.') }}
-                                </span>
+                                <x-price-badge :amount="$record->getPrice()" />
                             </td>
                             <td class="px-6 py-4 text-sm text-gray-500">{{ $record->getRecordedDate()->format('Y-m-d') }}</td>
                             <td class="px-6 py-4 text-sm text-gray-500">{{ $record->getSource() ?? '-' }}</td>

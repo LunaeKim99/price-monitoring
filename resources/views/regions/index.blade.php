@@ -27,7 +27,7 @@
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200">
                     @forelse($regions as $region)
-                        <tr class="hover:bg-gray-50">
+                        <tr class="hover:bg-blue-50 transition-colors odd:bg-gray-50/50">
                             <td class="px-6 py-4 text-sm text-gray-500">{{ $region->getId() }}</td>
                             <td class="px-6 py-4 text-sm font-medium text-gray-800">{{ $region->getName() }}</td>
                             <td class="px-6 py-4">
@@ -38,7 +38,9 @@
                                     {{ ucfirst($region->getType()) }}
                                 </span>
                             </td>
-                            <td class="px-6 py-4 text-sm text-gray-500">{{ $region->getParentId() ? 'ID: '.$region->getParentId() : '-' }}</td>
+                            <td class="px-6 py-4 text-sm text-gray-500">
+                                {{ $region->getParentId() ? ($regionMap[$region->getParentId()] ?? 'ID: '.$region->getParentId()) : '-' }}
+                            </td>
                             <td class="px-6 py-4 text-sm text-gray-500">{{ $region->getCreatedAt() ?? '-' }}</td>
                         </tr>
                     @empty

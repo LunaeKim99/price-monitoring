@@ -28,7 +28,7 @@
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200">
                     @forelse($commodities as $commodity)
-                        <tr class="hover:bg-gray-50">
+                        <tr class="hover:bg-blue-50 transition-colors odd:bg-gray-50/50">
                             <td class="px-6 py-4 text-sm text-gray-500">{{ $commodity->getId() }}</td>
                             <td class="px-6 py-4 text-sm font-medium text-gray-800">{{ $commodity->getName() }}</td>
                             <td class="px-6 py-4 text-sm text-gray-500">{{ $commodity->getCategory() ?? '-' }}</td>

@@ -9,6 +9,13 @@ use Illuminate\Support\Collection;
 
 class EloquentPredictionRepository implements PredictionRepositoryInterface
 {
+    public function all(): Collection
+    {
+        return Prediction::orderBy('created_at', 'desc')
+            ->get()
+            ->map(fn(Prediction $model) => $this->toDomain($model));
+    }
+
     public function findByCommodityAndRegion(int $commodityId, int $regionId): Collection
     {
         return Prediction::where('commodity_id', $commodityId)

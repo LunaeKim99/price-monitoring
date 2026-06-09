@@ -19,7 +19,12 @@ class RegionController extends Controller
     {
         $regions = $this->regionRepository->all();
 
-        return view('regions.index', compact('regions'));
+        $regionMap = [];
+        foreach ($regions as $r) {
+            $regionMap[$r->getId()] = $r->getName();
+        }
+
+        return view('regions.index', compact('regions', 'regionMap'));
     }
 
     public function create(): View

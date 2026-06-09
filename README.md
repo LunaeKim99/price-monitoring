@@ -4,10 +4,11 @@ A web-based dashboard for monitoring and tracking basic food commodity prices. B
 
 ## ✨ Features
 
-- **Dashboard Overview** — Summary cards, trend indicators, latest prices, and chart placeholders
+- **Dashboard Overview** — Summary cards, trend indicators, latest prices, and Chart.js visualizations (price trend line chart + region comparison bar chart)
 - **Commodity Management** — CRUD for commodities (e.g., Beras, Minyak Goreng, Gula Pasir)
 - **Region Management** — CRUD for regions with hierarchical support (province/city/district)
 - **Price Records** — Record daily prices per commodity per region with filtering by date, commodity, and region
+- **Price Predictions** — Generate future price forecasts using SMA-7 + Linear Regression with confidence scoring (7/14/30-day periods)
 - **Authentication** — Simple session-based login/logout
 - **Responsive UI** — Tailwind CSS v4 with mobile-friendly layout
 - **Future-Ready** — Clean Architecture + Repository pattern enables swapping SQLite for MySQL/MongoDB
@@ -188,6 +189,10 @@ vendor/bin/phpcbf --standard=PSR12 --extensions=php app/
 | PUT/DELETE | `/commodities/{id}` | Update / Delete commodity |
 | GET/POST | `/regions` | List / Create regions |
 | GET/POST | `/price-records` | List / Create price records |
+| GET | `/predictions` | List predictions |
+| GET | `/predictions/create` | Prediction form |
+| POST | `/predictions/generate` | Generate predictions |
+| DELETE | `/predictions/{id}` | Delete prediction |
 | GET/POST | `/login` | Login form / authenticate |
 | POST | `/logout` | Logout |
 
@@ -207,8 +212,8 @@ vendor/bin/phpcbf --standard=PSR12 --extensions=php app/
 - [x] Authentication
 - [x] CRUD commodities, regions, prices
 - [x] Dashboard with summaries & trends
-- [ ] Real chart visualizations (Chart.js)
-- [ ] Price prediction engine
+- [x] Real chart visualizations (Chart.js)
+- [x] Price prediction engine (SMA-7 + Linear Regression)
 - [ ] CSV/Excel import/export
 - [ ] MySQL production migration
 - [ ] MongoDB adapter implementation

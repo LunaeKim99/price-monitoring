@@ -33,4 +33,8 @@ interface PriceRecordRepositoryInterface
     public function delete(int $id): bool;
 
     public function getAggregateStats(PriceFilter $filter): array;
+
+    public function getRecordsBetweenDates(\DateTime $from, \DateTime $to): Collection;
+
+    public function getLatestByCommodityAndRegion(int $commodityId, int $regionId, int $limit = 60): Collection;
 }

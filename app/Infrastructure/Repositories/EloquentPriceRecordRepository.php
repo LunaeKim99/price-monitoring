@@ -116,6 +116,24 @@ class EloquentPriceRecordRepository implements PriceRecordRepositoryInterface
         return PriceRecord::destroy($id) > 0;
     }
 
+    public function getRecordsBetweenDates(\DateTime $from, \DateTime $to): Collection
+    {
+        return PriceRecord::whereBetween('recorded_date', [$from->format('Y-m-d'), $to->format('Y-m-d')])
+            ->orderBy('recorded_date', 'asc')
+            ->get()
+            ->map(fn(PriceRecord $model) => $this->toDomain($model));
+    }
+
+    public function getLatestByCommodityAndRegion(int $commodityId, int $regionId, int $limit = 60): Collection
+    {
+        return PriceRecord::where('commodity_id', $commodityId)
+            ->where('region_id', $regionId)
+            ->orderBy('recorded_date', 'desc')
+            ->limit($limit)
+            ->get()
+            ->map(fn(PriceRecord $model) => $this->toDomain($model));
+    }
+
     public function getAggregateStats(PriceFilter $filter): array
     {
         $query = PriceRecord::query();

@@ -7,6 +7,8 @@ use Illuminate\Support\Collection;
 
 interface PredictionRepositoryInterface
 {
+    public function all(): Collection;
+
     public function findByCommodityAndRegion(int $commodityId, int $regionId): Collection;
 
     public function save(Prediction $prediction): Prediction;

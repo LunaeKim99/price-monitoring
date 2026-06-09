@@ -11,6 +11,10 @@ class DashboardDTO
         public readonly float $averagePrice,
         public readonly array $latestPrices,
         public readonly array $trendingCommodities,
+        public readonly array $priceTrendLabels = [],
+        public readonly array $priceTrendData = [],
+        public readonly array $regionComparisonLabels = [],
+        public readonly array $regionComparisonData = [],
     ) {
     }
 }
