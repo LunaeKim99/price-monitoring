@@ -1,14 +1,20 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" x-data="themeManager()" :class="{ 'dark': isDark }">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'Price Monitoring') - {{ config('app.name', 'Price Monitoring') }}</title>
+    <script>
+        (function() {
+            var t = localStorage.getItem('pm-theme') || 'system';
+            var d = t === 'dark' || (t === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+            if (d) document.documentElement.classList.add('dark');
+        })();
+    </script>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
-    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 </head>
-<body class="bg-gray-50 font-sans antialiased">
+<body class="bg-surface-secondary text-text-primary antialiased">
     <div class="min-h-screen flex">
         @include('components.sidebar')
 
@@ -27,7 +33,7 @@
                 @yield('content')
             </main>
 
-            <footer class="border-t border-gray-200 p-4 text-center text-sm text-gray-500">
+            <footer class="border-t border-border p-4 text-center text-sm text-text-muted dark:border-gray-700 dark:text-gray-400">
                 &copy; {{ date('Y') }} {{ config('app.name') }}. All rights reserved.
             </footer>
         </div>

@@ -16,11 +16,12 @@
 
     <div class="flex items-center justify-between mb-6">
         <div>
-            <h2 class="text-2xl font-bold text-gray-800">Data Harga Komoditas</h2>
-            <p class="text-sm text-gray-500 mt-1">Total: {{ $viewModel->totalCount }} record</p>
+            <h2 class="text-2xl font-bold text-text-primary">Data Harga Komoditas</h2>
+            <p class="text-sm text-text-muted mt-1">Total: {{ $viewModel->totalCount }} record</p>
         </div>
-        <a href="{{ route('price-records.create') }}" class="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors">
-            + Catat Harga
+        <a href="{{ route('price-records.create') }}" class="btn-primary inline-flex items-center gap-2">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+            Catat Harga
         </a>
     </div>
 
@@ -32,37 +33,46 @@
     ])
 
     <!-- Prices Table -->
-    <div class="bg-white rounded-lg shadow-md border border-gray-200 overflow-hidden">
+    <div class="bg-surface rounded-xl shadow-sm border border-border overflow-hidden">
         <div class="overflow-x-auto">
-            <table class="min-w-full divide-y divide-gray-200">
-                <thead class="bg-gray-50">
+            <table class="min-w-full divide-y divide-border">
+                <thead class="bg-surface-secondary">
                     <tr>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">ID</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Komoditas</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Wilayah</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Harga</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Tanggal</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Sumber</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Catatan</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-text-muted uppercase">ID</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-text-muted uppercase">Komoditas</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-text-muted uppercase">Wilayah</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-text-muted uppercase">Harga</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-text-muted uppercase">Tanggal</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-text-muted uppercase">Sumber</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-text-muted uppercase">Catatan</th>
                     </tr>
                 </thead>
-                <tbody class="bg-white divide-y divide-gray-200">
+                <tbody class="bg-surface divide-y divide-border">
                     @forelse($viewModel->prices as $record)
-                        <tr class="hover:bg-blue-50 transition-colors odd:bg-gray-50/50">
-                            <td class="px-6 py-4 text-sm text-gray-500">{{ $record->getId() }}</td>
-                            <td class="px-6 py-4 text-sm text-gray-800">{{ $commodityMap[$record->getCommodityId()] ?? 'ID: '.$record->getCommodityId() }}</td>
-                            <td class="px-6 py-4 text-sm text-gray-800">{{ $regionMap[$record->getRegionId()] ?? 'ID: '.$record->getRegionId() }}</td>
+                        <tr class="hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors odd:bg-gray-50/50 dark:odd:bg-gray-700/30">
+                            <td class="px-6 py-4 text-sm text-text-muted">{{ $record->getId() }}</td>
+                            <td class="px-6 py-4 text-sm text-text-primary">{{ $commodityMap[$record->getCommodityId()] ?? 'ID: '.$record->getCommodityId() }}</td>
+                            <td class="px-6 py-4 text-sm text-text-primary">{{ $regionMap[$record->getRegionId()] ?? 'ID: '.$record->getRegionId() }}</td>
                             <td class="px-6 py-4">
                                 <x-price-badge :amount="$record->getPrice()" />
                             </td>
-                            <td class="px-6 py-4 text-sm text-gray-500">{{ $record->getRecordedDate()->format('Y-m-d') }}</td>
-                            <td class="px-6 py-4 text-sm text-gray-500">{{ $record->getSource() ?? '-' }}</td>
-                            <td class="px-6 py-4 text-sm text-gray-500 max-w-[200px] truncate">{{ $record->getNotes() ?? '-' }}</td>
+                            <td class="px-6 py-4 text-sm text-text-muted">{{ $record->getRecordedDate()->format('Y-m-d') }}</td>
+                            <td class="px-6 py-4 text-sm text-text-muted">{{ $record->getSource() ?? '-' }}</td>
+                            <td class="px-6 py-4 text-sm text-text-muted max-w-[200px] truncate">{{ $record->getNotes() ?? '-' }}</td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="7" class="px-6 py-12 text-center text-gray-500">
-                                Tidak ada data harga.
+                            <td colspan="7" class="px-6 py-12 text-center">
+                                <div class="empty-state">
+                                    <svg class="w-12 h-12 text-text-muted mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+                                    </svg>
+                                    <p class="text-text-muted mb-3">Belum ada data harga.</p>
+                                    <a href="{{ route('price-records.create') }}" class="btn-primary inline-flex items-center gap-2">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                                        Catat Harga Baru
+                                    </a>
+                                </div>
                             </td>
                         </tr>
                     @endforelse
@@ -71,7 +81,7 @@
         </div>
 
         @if($viewModel->prices->hasPages())
-            <div class="px-6 py-4 border-t border-gray-200">
+            <div class="px-6 py-4 border-t border-border">
                 {{ $viewModel->prices->links() }}
             </div>
         @endif

@@ -5,11 +5,11 @@
 
 @php
     $classes = [
-        'success' => 'bg-green-50 border-green-200 text-green-800',
-        'error' => 'bg-red-50 border-red-200 text-red-800',
-        'warning' => 'bg-yellow-50 border-yellow-200 text-yellow-800',
-        'info' => 'bg-blue-50 border-blue-200 text-blue-800',
-    ][$type] ?? 'bg-blue-50 border-blue-200 text-blue-800';
+        'success' => 'bg-green-50 border-green-200 text-green-800 dark:bg-green-900/30 dark:border-green-700 dark:text-green-300',
+        'error' => 'bg-red-50 border-red-200 text-red-800 dark:bg-red-900/30 dark:border-red-700 dark:text-red-300',
+        'warning' => 'bg-yellow-50 border-yellow-200 text-yellow-800 dark:bg-yellow-900/30 dark:border-yellow-700 dark:text-yellow-300',
+        'info' => 'bg-blue-50 border-blue-200 text-blue-800 dark:bg-blue-900/30 dark:border-blue-700 dark:text-blue-300',
+    ][$type] ?? 'bg-blue-50 border-blue-200 text-blue-800 dark:bg-blue-900/30 dark:border-blue-700 dark:text-blue-300';
 
     $icons = [
         'success' => '✓',
@@ -19,7 +19,13 @@
     ];
 @endphp
 
-<div x-data="{ show: true }" x-show="show" class="rounded-lg border p-4 mb-6 {{ $classes }}" role="alert">
+<div x-data="{ show: true }" x-show="show"
+     x-init="setTimeout(() => show = false, 4000)"
+     x-transition:leave="transition ease-in duration-300"
+     x-transition:leave-start="opacity-100"
+     x-transition:leave-end="opacity-0"
+     class="rounded-lg border p-4 mb-6 {{ $classes }}"
+     role="alert">
     <div class="flex items-center justify-between">
         <div class="flex items-center gap-2">
             <span class="text-lg">{{ $icons[$type] ?? 'ℹ' }}</span>
