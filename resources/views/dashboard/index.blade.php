@@ -67,12 +67,16 @@
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
         <div class="bg-white rounded-lg shadow-md p-6 border border-gray-200">
             <h3 class="text-lg font-semibold text-gray-800 mb-4">Tren Harga Komoditas (30 Hari)</h3>
-            <canvas id="priceTrendChart" height="180"></canvas>
+            <div class="relative h-[300px] w-full">
+                <canvas id="priceTrendChart" class="w-full h-full"></canvas>
+            </div>
         </div>
 
         <div class="bg-white rounded-lg shadow-md p-6 border border-gray-200">
             <h3 class="text-lg font-semibold text-gray-800 mb-4">Perbandingan Harga per Wilayah (30 Hari)</h3>
-            <canvas id="regionComparisonChart" height="180"></canvas>
+            <div class="relative h-[300px] w-full">
+                <canvas id="regionComparisonChart" class="w-full h-full"></canvas>
+            </div>
         </div>
     </div>
 
