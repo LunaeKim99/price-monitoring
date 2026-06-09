@@ -1,3 +1,4 @@
+{{-- DEPRECATED: Sidebar digantikan oleh top navbar. File ini tidak lagi di-include. --}}
 <aside class="w-64 bg-gray-900 text-white min-h-screen flex flex-col">
     <div class="p-6 border-b border-gray-700">
         <div class="flex items-center gap-3">

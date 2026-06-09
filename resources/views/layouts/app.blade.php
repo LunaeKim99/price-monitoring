@@ -14,30 +14,20 @@
     </script>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
-<body class="bg-surface-secondary text-text-primary antialiased">
-    <div class="min-h-screen flex">
-        @include('components.sidebar')
+<body class="bg-surface-secondary text-text-primary antialiased min-h-screen flex flex-col">
+    <x-navbar />
 
-        <div class="flex-1 flex flex-col">
-            @include('components.navbar')
+    @if (session('success'))
+        @include('components.alert', ['type' => 'success', 'message' => session('success')])
+    @endif
 
-            <main class="flex-1 p-6">
-                @if (session('success'))
-                    @include('components.alert', ['type' => 'success', 'message' => session('success')])
-                @endif
+    @if (session('error'))
+        @include('components.alert', ['type' => 'error', 'message' => session('error')])
+    @endif
 
-                @if (session('error'))
-                    @include('components.alert', ['type' => 'error', 'message' => session('error')])
-                @endif
-
-                @yield('content')
-            </main>
-
-            <footer class="border-t border-border p-4 text-center text-sm text-text-muted dark:border-gray-700 dark:text-gray-400">
-                &copy; {{ date('Y') }} {{ config('app.name') }}. All rights reserved.
-            </footer>
-        </div>
-    </div>
+    <main class="flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        @yield('content')
+    </main>
 
     @stack('scripts')
 </body>
