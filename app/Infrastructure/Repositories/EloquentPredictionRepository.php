@@ -5,6 +5,7 @@ namespace App\Infrastructure\Repositories;
 use App\Domain\Entities\Prediction as DomainPrediction;
 use App\Domain\Repositories\PredictionRepositoryInterface;
 use App\Models\Prediction;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
 
 class EloquentPredictionRepository implements PredictionRepositoryInterface
@@ -14,6 +15,23 @@ class EloquentPredictionRepository implements PredictionRepositoryInterface
         return Prediction::orderBy('created_at', 'desc')
             ->get()
             ->map(fn(Prediction $model) => $this->toDomain($model));
+    }
+
+    public function paginate(int $perPage = 15, ?int $commodityId = null, ?int $regionId = null): LengthAwarePaginator
+    {
+        $query = Prediction::orderBy('created_at', 'desc');
+
+        if ($commodityId !== null) {
+            $query->where('commodity_id', $commodityId);
+        }
+        if ($regionId !== null) {
+            $query->where('region_id', $regionId);
+        }
+
+        $paginator = $query->paginate($perPage);
+        $paginator->getCollection()->transform(fn(Prediction $model) => $this->toDomain($model));
+
+        return $paginator;
     }
 
     public function findByCommodityAndRegion(int $commodityId, int $regionId): Collection

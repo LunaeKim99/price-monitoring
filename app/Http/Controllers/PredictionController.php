@@ -22,9 +22,16 @@ class PredictionController extends Controller
     ) {
     }
 
-    public function index(): View
+    public function index(Request $request): View
     {
-        $predictions = $this->predictionRepository->all();
+        $commodityId = $request->query('commodity_id');
+        $regionId = $request->query('region_id');
+
+        $predictions = $this->predictionRepository->paginate(
+            perPage: 20,
+            commodityId: $commodityId ? (int) $commodityId : null,
+            regionId: $regionId ? (int) $regionId : null,
+        );
 
         // Load latest batch info
         $latestBatch = $this->predictionBatchRepository->findLatest();
@@ -32,17 +39,31 @@ class PredictionController extends Controller
             ? $this->predictionRepository->findByBatchId($latestBatch->getId())
             : collect();
 
+        $commodities = $this->commodityRepository->all();
+        $regions = $this->regionRepository->all();
+
         // Build lookup maps for names
         $commodityMap = [];
-        foreach ($this->commodityRepository->all() as $c) {
+        foreach ($commodities as $c) {
             $commodityMap[$c->getId()] = $c->getName();
         }
         $regionMap = [];
-        foreach ($this->regionRepository->all() as $r) {
+        foreach ($regions as $r) {
             $regionMap[$r->getId()] = $r->getName();
         }
 
-        return view('predictions.index', compact('predictions', 'commodityMap', 'regionMap', 'latestBatch', 'batchPredictions'));
+        $displayPredictions = $batchPredictions->isNotEmpty() ? $batchPredictions : $predictions;
+
+        return view('predictions.index', compact(
+            'predictions',
+            'commodityMap',
+            'regionMap',
+            'latestBatch',
+            'batchPredictions',
+            'displayPredictions',
+            'commodities',
+            'regions',
+        ));
     }
 
     public function create(): View

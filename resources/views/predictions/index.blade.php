@@ -56,20 +56,60 @@
         </div>
     @endif
 
+    <!-- Filter Bar -->
+    <div class="bg-surface rounded-xl shadow-sm border border-border p-4 mb-6">
+        <form method="GET" action="{{ route('predictions.index') }}" class="flex flex-wrap items-end gap-4">
+            <div>
+                <label for="commodity_id" class="block text-xs font-medium text-text-muted mb-1">Komoditas</label>
+                <select name="commodity_id" id="commodity_id"
+                        class="rounded-lg border-border bg-surface text-text-primary text-sm px-3 py-2 focus:ring-2 focus:ring-brand-500 focus:border-brand-500">
+                    <option value="">Semua Komoditas</option>
+                    @foreach($commodities as $c)
+                        <option value="{{ $c->getId() }}" {{ request('commodity_id') == $c->getId() ? 'selected' : '' }}>
+                            {{ $c->getName() }}
+                        </option>
+                    @endforeach
+                </select>
+            </div>
+            <div>
+                <label for="region_id" class="block text-xs font-medium text-text-muted mb-1">Wilayah</label>
+                <select name="region_id" id="region_id"
+                        class="rounded-lg border-border bg-surface text-text-primary text-sm px-3 py-2 focus:ring-2 focus:ring-brand-500 focus:border-brand-500">
+                    <option value="">Semua Wilayah</option>
+                    @foreach($regions as $r)
+                        <option value="{{ $r->getId() }}" {{ request('region_id') == $r->getId() ? 'selected' : '' }}>
+                            {{ $r->getName() }}
+                        </option>
+                    @endforeach
+                </select>
+            </div>
+            <div class="flex gap-2 items-end pb-0.5">
+                <button type="submit" class="btn-primary text-sm inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-brand-600 text-white hover:bg-brand-700 transition-colors font-medium">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"/></svg>
+                    Filter
+                </button>
+                @if(request('commodity_id') || request('region_id'))
+                    <a href="{{ route('predictions.index') }}" class="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg border border-border text-text-secondary hover:bg-surface-hover transition-colors text-sm font-medium bg-surface">
+                        Reset
+                    </a>
+                @endif
+            </div>
+        </form>
+    </div>
+
     <!-- Summary Cards -->
-    @php
-        $displayPredictions = $batchPredictions->isNotEmpty() ? $batchPredictions : $predictions;
-    @endphp
+    @php $hasActiveBatch = $batchPredictions->isNotEmpty(); @endphp
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
         <div class="bg-surface rounded-xl shadow-sm p-4 border border-border">
             <p class="text-sm text-text-muted">Total Prediksi</p>
-            <p class="text-2xl font-bold text-text-primary">{{ collect($displayPredictions)->count() }}</p>
+            <p class="text-2xl font-bold text-text-primary">{{ $hasActiveBatch ? $batchPredictions->count() : $predictions->total() }}</p>
         </div>
         <div class="bg-surface rounded-xl shadow-sm p-4 border border-border">
             <p class="text-sm text-text-muted">Rata-rata Confidence</p>
             <p class="text-2xl font-bold text-text-primary">
                 @php
-                    $confidences = collect($displayPredictions)->map(fn($p) => $p->getConfidence() ?? 0);
+                    $confItems = $hasActiveBatch ? $batchPredictions : $predictions->getCollection();
+                    $confidences = $confItems->map(fn($p) => $p->getConfidence() ?? 0);
                     $avgConf = $confidences->count() > 0 ? $confidences->avg() : 0;
                 @endphp
                 {{ number_format($avgConf * 100, 1) }}%
@@ -143,4 +183,10 @@
             </table>
         </div>
     </div>
+
+    @if(!$hasActiveBatch)
+        <div class="mt-6 px-1">
+            {{ $predictions->appends(request()->query())->links() }}
+        </div>
+    @endif
 @endsection
