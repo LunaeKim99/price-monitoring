@@ -107,71 +107,77 @@
     </div>
 
     <div class="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 md:py-32">
-
-        {{-- 1. HEADLINE block --}}
-        <div class="text-center max-w-4xl mx-auto mb-14 md:mb-18">
-            <h1 class="font-heading text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-text-primary leading-tight mb-6">
-                Pantau Harga Komoditas,<br>
-                <span class="text-transparent bg-clip-text bg-gradient-to-r from-brand-600 to-brand-400">Prediksi Tren Pasar</span>
-            </h1>
-            <p class="text-lg md:text-xl text-text-secondary max-w-2xl mx-auto mb-10 leading-relaxed">
-                Dashboard real-time untuk harga sembako, protein, dan bumbu dapur. Dilengkapi prediksi AI dan visualisasi data interaktif.
-            </p>
-            <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
-                <a href="{{ route('dashboard') }}" class="btn-primary inline-flex items-center gap-2 px-8 py-3 text-base">
-                    Lihat Dashboard →
-                </a>
-                <a href="#fitur" class="btn-secondary inline-flex items-center gap-2 px-8 py-3 text-base">
-                    Pelajari Lebih Lanjut ↓
-                </a>
-            </div>
-        </div>
-
-        {{-- 2. TRUST BADGES row --}}
-        <div class="flex flex-wrap items-center justify-center gap-3 md:gap-4 mb-16 md:mb-20">
-            <span class="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-brand-50 dark:bg-brand-900/30 text-brand-700 dark:text-brand-300 text-sm font-medium border border-brand-200 dark:border-brand-700/50">
-                <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
-                22 Unit Test Passed
-            </span>
-            <span class="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-brand-50 dark:bg-brand-900/30 text-brand-700 dark:text-brand-300 text-sm font-medium border border-brand-200 dark:border-brand-700/50">
-                <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
-                Real-time Updates
-            </span>
-            <span class="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-brand-50 dark:bg-brand-900/30 text-brand-700 dark:text-brand-300 text-sm font-medium border border-brand-200 dark:border-brand-700/50">
-                <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
-                AI Predictions
-            </span>
-        </div>
-
-        {{-- 3. HERO VISUAL CARD --}}
-        <div class="max-w-4xl mx-auto">
-            <div class="card !p-0 overflow-hidden shadow-2xl shadow-brand-500/10 dark:shadow-brand-900/30">
-                {{-- Window chrome --}}
-                <div class="px-6 py-3.5 border-b border-border flex items-center justify-between bg-surface-secondary/50">
-                    <div class="flex items-center gap-2">
-                        <div class="w-3 h-3 rounded-full bg-red-500"></div>
-                        <div class="w-3 h-3 rounded-full bg-yellow-500"></div>
-                        <div class="w-3 h-3 rounded-full bg-green-500"></div>
+        <div class="lg:grid lg:grid-cols-5 lg:gap-8 xl:gap-12 lg:items-center">
+            {{-- LEFT COL: Headline + CTA + Badges --}}
+            <div class="lg:col-span-3">
+                {{-- 1. HEADLINE block --}}
+                <div class="text-center lg:text-left max-w-4xl mx-auto lg:max-w-none mb-14 md:mb-18">
+                    <h1 class="font-heading text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-text-primary leading-tight mb-6">
+                        Pantau Harga Komoditas,<br>
+                        <span class="text-transparent bg-clip-text bg-gradient-to-r from-brand-600 to-brand-400">Prediksi Tren Pasar</span>
+                    </h1>
+                    <p class="text-lg md:text-xl text-text-secondary max-w-2xl mx-auto lg:mx-0 mb-10 leading-relaxed">
+                        Dashboard real-time untuk harga sembako, protein, dan bumbu dapur. Dilengkapi prediksi AI dan visualisasi data interaktif.
+                    </p>
+                    <div class="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4">
+                        <a href="{{ route('dashboard') }}" class="btn-primary inline-flex items-center gap-2 px-8 py-3 text-base">
+                            Lihat Dashboard →
+                        </a>
+                        <a href="#fitur" class="btn-secondary inline-flex items-center gap-2 px-8 py-3 text-base">
+                            Pelajari Lebih Lanjut ↓
+                        </a>
                     </div>
-                    <span class="text-xs text-text-muted font-mono">dashboard preview</span>
-                    <div class="w-14"></div>{{-- spacer --}}
                 </div>
-                {{-- Stat cards --}}
-                <div class="p-6 md:p-8 grid grid-cols-1 sm:grid-cols-3 gap-4 md:gap-6">
-                    <div class="float-1 rounded-2xl p-6 bg-gradient-to-br from-brand-500 to-brand-700 text-white text-center">
-                        <p class="text-3xl md:text-4xl font-bold font-heading mb-1">7</p>
-                        <p class="text-sm font-medium text-white/80">Komoditas</p>
-                        <p class="text-xs text-white/60 mt-1">Utama</p>
-                    </div>
-                    <div class="float-2 rounded-2xl p-6 bg-gradient-to-br from-emerald-500 to-teal-700 text-white text-center">
-                        <p class="text-3xl md:text-4xl font-bold font-heading mb-1">34</p>
-                        <p class="text-sm font-medium text-white/80">Wilayah</p>
-                        <p class="text-xs text-white/60 mt-1">Coverage</p>
-                    </div>
-                    <div class="float-3 rounded-2xl p-6 bg-gradient-to-br from-violet-500 to-purple-700 text-white text-center">
-                        <p class="text-3xl md:text-4xl font-bold font-heading mb-1">95%</p>
-                        <p class="text-sm font-medium text-white/80">Akurasi</p>
-                        <p class="text-xs text-white/60 mt-1">Prediksi</p>
+
+                {{-- 2. TRUST BADGES row --}}
+                <div class="flex flex-wrap items-center justify-center lg:justify-start gap-3 md:gap-4">
+                    <span class="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-brand-50 dark:bg-brand-900/30 text-brand-700 dark:text-brand-300 text-sm font-medium border border-brand-200 dark:border-brand-700/50">
+                        <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                        22 Unit Test Passed
+                    </span>
+                    <span class="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-brand-50 dark:bg-brand-900/30 text-brand-700 dark:text-brand-300 text-sm font-medium border border-brand-200 dark:border-brand-700/50">
+                        <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                        Real-time Updates
+                    </span>
+                    <span class="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-brand-50 dark:bg-brand-900/30 text-brand-700 dark:text-brand-300 text-sm font-medium border border-brand-200 dark:border-brand-700/50">
+                        <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+                        AI Predictions
+                    </span>
+                </div>
+            </div>
+
+            {{-- RIGHT COL: Hero Visual Card --}}
+            <div class="lg:col-span-2 mt-12 lg:mt-0">
+                <div class="max-w-4xl mx-auto lg:max-w-none">
+                    <div class="card !p-0 overflow-hidden shadow-2xl shadow-brand-500/10 dark:shadow-brand-900/30">
+                        {{-- Window chrome --}}
+                        <div class="px-6 py-3.5 border-b border-border flex items-center justify-between bg-surface-secondary/50">
+                            <div class="flex items-center gap-2">
+                                <div class="w-3 h-3 rounded-full bg-red-500"></div>
+                                <div class="w-3 h-3 rounded-full bg-yellow-500"></div>
+                                <div class="w-3 h-3 rounded-full bg-green-500"></div>
+                            </div>
+                            <span class="text-xs text-text-muted font-mono">dashboard preview</span>
+                            <div class="w-14"></div>
+                        </div>
+                        {{-- Stat cards --}}
+                        <div class="p-6 md:p-8 grid grid-cols-1 sm:grid-cols-3 gap-4 md:gap-6">
+                            <div class="float-1 rounded-2xl p-6 bg-gradient-to-br from-brand-500 to-brand-700 text-white text-center">
+                                <p class="text-3xl md:text-4xl font-bold font-heading mb-1">7</p>
+                                <p class="text-sm font-medium text-white/80">Komoditas</p>
+                                <p class="text-xs text-white/60 mt-1">Utama</p>
+                            </div>
+                            <div class="float-2 rounded-2xl p-6 bg-gradient-to-br from-emerald-500 to-teal-700 text-white text-center">
+                                <p class="text-3xl md:text-4xl font-bold font-heading mb-1">34</p>
+                                <p class="text-sm font-medium text-white/80">Wilayah</p>
+                                <p class="text-xs text-white/60 mt-1">Coverage</p>
+                            </div>
+                            <div class="float-3 rounded-2xl p-6 bg-gradient-to-br from-violet-500 to-purple-700 text-white text-center">
+                                <p class="text-3xl md:text-4xl font-bold font-heading mb-1">95%</p>
+                                <p class="text-sm font-medium text-white/80">Akurasi</p>
+                                <p class="text-xs text-white/60 mt-1">Prediksi</p>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -186,10 +192,10 @@
             <h2 class="font-heading text-3xl md:text-4xl font-bold text-text-primary mb-4">Fitur Unggulan</h2>
             <p class="text-text-secondary max-w-xl mx-auto">Platform lengkap untuk monitoring dan analisis harga komoditas</p>
         </div>
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8 md:auto-rows-fr">
 
             {{-- Card 1: Monitor Harga Real-time --}}
-            <div class="card hover:-translate-y-1 hover:shadow-lg transition-all duration-300 group">
+            <div class="card h-full hover:-translate-y-1 hover:shadow-lg transition-all duration-300 group">
                 <div class="w-12 h-12 rounded-xl bg-brand-100 dark:bg-brand-900/50 flex items-center justify-center mb-5 text-brand-600 dark:text-brand-400 group-hover:scale-110 transition-transform duration-300">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
                 </div>
@@ -199,7 +205,7 @@
             </div>
 
             {{-- Card 2: Prediksi Harga AI --}}
-            <div class="card hover:-translate-y-1 hover:shadow-lg transition-all duration-300 group">
+            <div class="card h-full hover:-translate-y-1 hover:shadow-lg transition-all duration-300 group">
                 <div class="w-12 h-12 rounded-xl bg-brand-100 dark:bg-brand-900/50 flex items-center justify-center mb-5 text-brand-600 dark:text-brand-400 group-hover:scale-110 transition-transform duration-300">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
                 </div>
@@ -209,7 +215,7 @@
             </div>
 
             {{-- Card 3: Multi-Wilayah --}}
-            <div class="card hover:-translate-y-1 hover:shadow-lg transition-all duration-300 group">
+            <div class="card h-full hover:-translate-y-1 hover:shadow-lg transition-all duration-300 group">
                 <div class="w-12 h-12 rounded-xl bg-brand-100 dark:bg-brand-900/50 flex items-center justify-center mb-5 text-brand-600 dark:text-brand-400 group-hover:scale-110 transition-transform duration-300">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                 </div>
