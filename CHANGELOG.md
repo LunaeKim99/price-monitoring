@@ -149,6 +149,43 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.3.0] — 2026-06-11
+
+### Added
+
+#### 🎨 UI & Design
+- **Landing page redesign**: Golden Ratio / Rule of Thirds layout applied to `welcome.blade.php` — hero section with split composition, proportional spacing, and focal point alignment
+- **Dark mode toggle**: Full dark mode support with `Alpine.store('theme')` — toggle persisted in `localStorage`, applied via `class="dark"` on `<html>`, works across all pages
+
+#### 📄 Predictions — Pagination & Filters
+- **Pagination on predictions index**: 15 predictions per page with Laravel `paginate()` and `->appends()` for filter persistence
+- **Filter by commodity, region, and period**: Dropdown filters preserved across pagination via query string
+- **Filter action button**: Explicit "Filter" button (instead of auto-submit) for predictable UX — filters only apply on user action
+
+#### 🤖 Multi-Model AI Fallback
+- **Dual-model chain**: Primary `llama-3.3-70b-versatile` → fallback `llama-3.1-8b-instant` on failure, maximizing insight availability
+- **Dashboard AI insight panel**: New "Ringkasan Pasar (AI)" card on dashboard with gradient indigo-purple background, Markdown-rendered insight text, and generation timestamp
+- **Configurable models**: `GROQ_PRIMARY_MODEL` and `GROQ_FALLBACK_MODEL` env vars, both defaulting to sensible values
+
+#### 🗺️ Regional Data Expansion
+- **34 provinces**: `RegionSeeder` expanded from 8 to all 34 Indonesian provinces, covering Aceh to Papua
+- **Seeder optimization**: `PriceRecordSeeder` now inserts in chunks of 500 instead of 1 record at a time (~40× faster seeding)
+
+### Changed
+
+- **Dark mode state**: Migrated from `Alpine.data('themeManager')` component-scoped state to `Alpine.store('theme')` — global reactivity eliminates toggle flicker across page navigation
+- **Prediction display logic**: Removed dual `$displayPredictions` / `$predictions` paths — table always renders paginated `$predictions`
+- **`.env` key alignment**: Renamed `GROQ_BASE_URL` → `GROQ_ENDPOINT` and `GROQ_MODEL` → `GROQ_PRIMARY_MODEL` to match `config/services.php` expectations
+
+### Fixed
+
+- **AI panel not showing** (primary): Cached null insight no longer locks the panel for 1 hour — API failures fall back to stale cache; only successful API responses are cached
+- **Predictions pagination broken**: Filter parameters are now appended to pagination links via `->appends(request()->query())`
+- **Dark mode flicker**: Global Alpine store eliminates the flash of wrong theme on page load
+- **`.env` variable mismatch**: `GROQ_BASE_URL` and `GROQ_MODEL` were silently ignored — config defaults were used instead of env values
+
+---
+
 ## [Unreleased]
 
 ### Planned
@@ -159,7 +196,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - [ ] REST API endpoints for external integrations
 - [ ] User roles and permissions
 - [ ] Email notifications for price alerts
-- [ ] Dark mode toggle
 
 ---
 

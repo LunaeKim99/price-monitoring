@@ -10,8 +10,9 @@ A web-based dashboard for monitoring and tracking basic food commodity prices. B
 - **Price Records** — Record daily prices per commodity per region with filtering by date, commodity, and region
 - **Price Predictions** — Generate future price forecasts using SMA-7 + Linear Regression with confidence scoring (7/14/30-day periods)
 - **Automated Weekly Predictions** — Scheduled weekly generation of 7-day forecasts for all commodity+region pairs
-- **AI Market Insights** — Natural-language trend summaries powered by Groq (OpenAI-compatible API)
+- **AI Market Insights** — Natural-language trend summaries powered by Groq (OpenAI-compatible API) with dual-model fallback
 - **Prediction Batch Tracking** — Full lifecycle tracking with status monitoring (pending/processing/completed/failed)
+- **Dark Mode** — System-aware and manual dark mode toggle persisted in `localStorage`
 - **Authentication** — Simple session-based login/logout
 - **Responsive UI** — Tailwind CSS v4 with mobile-friendly layout
 - **Future-Ready** — Clean Architecture + Repository pattern enables swapping SQLite for MySQL/MongoDB
@@ -184,7 +185,8 @@ vendor/bin/phpcbf --standard=PSR12 --extensions=php app/
 | Variable | Description | Default |
 |----------|-------------|---------|
 | `GROQ_API_KEY` | Groq API key for AI-powered market insights | — |
-| `GROQ_MODEL` | LLM model for insight generation | `llama-3.3-70b-versatile` |
+| `GROQ_PRIMARY_MODEL` | Primary LLM for insight generation | `llama-3.3-70b-versatile` |
+| `GROQ_FALLBACK_MODEL` | Fallback LLM if primary fails | `llama-3.1-8b-instant` |
 | `GROQ_ENDPOINT` | Groq API base URL | `https://api.groq.com/openai/v1` |
 | `GROQ_TIMEOUT` | API request timeout in seconds | `30` |
 
@@ -230,6 +232,7 @@ vendor/bin/phpcbf --standard=PSR12 --extensions=php app/
 - [x] Price prediction engine (SMA-7 + Linear Regression)
 - [x] Automated weekly predictions with batch tracking
 - [x] AI-powered market insights (Groq integration)
+- [x] Dark mode toggle
 - [ ] CSV/Excel import/export
 - [ ] MySQL production migration
 - [ ] MongoDB adapter implementation
