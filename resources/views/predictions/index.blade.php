@@ -14,17 +14,62 @@
         </a>
     </div>
 
+    <!-- Batch Status Card -->
+    @if($latestBatch)
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-4 sm:p-6 mb-6">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                <div>
+                    <h3 class="font-semibold text-gray-900 dark:text-white text-lg">
+                        Batch Prediksi #{{ $latestBatch->getId() }}
+                    </h3>
+                    <p class="text-sm text-gray-500 dark:text-gray-400">
+                        Dibuat: {{ $latestBatch->getCreatedAt() ? \Carbon\Carbon::parse($latestBatch->getCreatedAt())->format('d M Y H:i') : '-' }}
+                        @if($latestBatch->getCompletedAt())
+                            | Selesai: {{ \Carbon\Carbon::parse($latestBatch->getCompletedAt())->format('d M Y H:i') }}
+                        @endif
+                    </p>
+                </div>
+                <x-prediction-batch-status :status="$latestBatch->getStatus()" />
+            </div>
+
+            @if($latestBatch->getAiInsight())
+                <div class="mt-4 p-4 bg-indigo-50 dark:bg-indigo-900/20 rounded-lg border border-indigo-200 dark:border-indigo-700/50">
+                    <p class="text-sm font-medium text-indigo-800 dark:text-indigo-300 mb-2">
+                        Ringkasan AI
+                    </p>
+                    <p class="text-sm text-indigo-700 dark:text-indigo-400 whitespace-pre-line leading-relaxed">
+                        {{ $latestBatch->getAiInsight() }}
+                    </p>
+                    @if($latestBatch->getAiInsightGeneratedAt())
+                        <p class="text-xs text-indigo-500 dark:text-indigo-500 mt-2">
+                            Dihasilkan: {{ \Carbon\Carbon::parse($latestBatch->getAiInsightGeneratedAt())->format('d M Y H:i') }}
+                        </p>
+                    @endif
+                </div>
+            @endif
+        </div>
+    @else
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-4 sm:p-6 mb-6">
+            <p class="text-sm text-gray-500 dark:text-gray-400">
+                Belum ada batch prediksi otomatis. Jalankan <code class="bg-gray-100 dark:bg-gray-700 px-1 py-0.5 rounded text-xs">php artisan predictions:generate-weekly</code> atau buat prediksi manual melalui tombol "Generate Prediksi".
+            </p>
+        </div>
+    @endif
+
     <!-- Summary Cards -->
+    @php
+        $displayPredictions = $batchPredictions->isNotEmpty() ? $batchPredictions : $predictions;
+    @endphp
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
         <div class="bg-surface rounded-xl shadow-sm p-4 border border-border">
             <p class="text-sm text-text-muted">Total Prediksi</p>
-            <p class="text-2xl font-bold text-text-primary">{{ collect($predictions)->count() }}</p>
+            <p class="text-2xl font-bold text-text-primary">{{ collect($displayPredictions)->count() }}</p>
         </div>
         <div class="bg-surface rounded-xl shadow-sm p-4 border border-border">
             <p class="text-sm text-text-muted">Rata-rata Confidence</p>
             <p class="text-2xl font-bold text-text-primary">
                 @php
-                    $confidences = collect($predictions)->map(fn($p) => $p->getConfidence() ?? 0);
+                    $confidences = collect($displayPredictions)->map(fn($p) => $p->getConfidence() ?? 0);
                     $avgConf = $confidences->count() > 0 ? $confidences->avg() : 0;
                 @endphp
                 {{ number_format($avgConf * 100, 1) }}%
@@ -48,7 +93,7 @@
                     </tr>
                 </thead>
                 <tbody class="bg-surface divide-y divide-border">
-                    @forelse($predictions as $prediction)
+                    @forelse($displayPredictions as $prediction)
                         <tr class="hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors odd:bg-gray-50/50 dark:odd:bg-gray-700/30">
                             <td class="px-6 py-4 text-sm text-text-muted">{{ $prediction->getId() }}</td>
                             <td class="px-6 py-4 text-sm font-medium text-text-primary">

@@ -22,12 +22,13 @@ class PredictionService
      * @param int $commodityId
      * @param int $regionId
      * @param int $days Number of days to predict (7, 14, or 30)
+     * @param int|null $predictionBatchId Optional batch ID for grouping predictions
      * @return Prediction[]
      * @throws \RuntimeException When insufficient data
      */
-    public function generatePredictions(int $commodityId, int $regionId, int $days = 7): array
+    public function generatePredictions(int $commodityId, int $regionId, int $days = 7, ?int $predictionBatchId = null): array
     {
-        return DB::transaction(function () use ($commodityId, $regionId, $days) {
+        return DB::transaction(function () use ($commodityId, $regionId, $days, $predictionBatchId) {
             $records = $this->priceRecordRepository->getLatestByCommodityAndRegion($commodityId, $regionId, 30);
 
             if ($records->count() < 7) {
@@ -64,10 +65,7 @@ class PredictionService
             $lastDate = $this->getLastRecordDate($records);
 
             // Delete old predictions for this commodity+region
-            $oldPredictions = $this->predictionRepository->findByCommodityAndRegion($commodityId, $regionId);
-            foreach ($oldPredictions as $old) {
-                $this->predictionRepository->delete($old->getId());
-            }
+            $this->predictionRepository->deleteByCommodityAndRegion($commodityId, $regionId);
 
             for ($day = 1; $day <= $days; $day++) {
                 $predictedDate = (clone $lastDate)->modify("+{$day} days");
@@ -83,7 +81,8 @@ class PredictionService
                     predictedPrice: round($predictedPrice, 2),
                     predictedDate: $predictedDate,
                     confidence: round($confidence, 2),
-                    modelName: 'SMA-LinearRegression'
+                    modelName: 'SMA-LinearRegression',
+                    predictionBatchId: $predictionBatchId
                 );
 
                 $stored = $this->predictionRepository->save($prediction);

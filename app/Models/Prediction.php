@@ -14,6 +14,7 @@ class Prediction extends Model
         'predicted_date',
         'confidence',
         'model_name',
+        'prediction_batch_id',
     ];
 
     protected function casts(): array
@@ -31,5 +32,10 @@ class Prediction extends Model
     public function region(): BelongsTo
     {
         return $this->belongsTo(Region::class);
+    }
+
+    public function predictionBatch(): BelongsTo
+    {
+        return $this->belongsTo(PredictionBatch::class);
     }
 }

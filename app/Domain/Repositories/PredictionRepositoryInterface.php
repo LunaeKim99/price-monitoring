@@ -14,4 +14,8 @@ interface PredictionRepositoryInterface
     public function save(Prediction $prediction): Prediction;
 
     public function delete(int $id): bool;
+
+    public function findByBatchId(int $batchId): Collection;
+
+    public function deleteByCommodityAndRegion(int $commodityId, int $regionId): void;
 }

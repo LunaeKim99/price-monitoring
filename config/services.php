@@ -35,4 +35,11 @@ return [
         ],
     ],
 
+    'groq' => [
+        'api_key' => env('GROQ_API_KEY'),
+        'model' => env('GROQ_MODEL', 'llama-3.3-70b-versatile'),
+        'endpoint' => env('GROQ_ENDPOINT', 'https://api.groq.com/openai/v1'),
+        'timeout' => (int) env('GROQ_TIMEOUT', 30),
+    ],
+
 ];

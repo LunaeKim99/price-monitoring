@@ -25,6 +25,22 @@ class EloquentPredictionRepository implements PredictionRepositoryInterface
             ->map(fn(Prediction $model) => $this->toDomain($model));
     }
 
+    public function findByBatchId(int $batchId): Collection
+    {
+        return Prediction::where('prediction_batch_id', $batchId)
+            ->orderBy('predicted_date', 'desc')
+            ->get()
+            ->map(fn(Prediction $model) => $this->toDomain($model));
+    }
+
+    public function deleteByCommodityAndRegion(int $commodityId, int $regionId): void
+    {
+        Prediction::where('commodity_id', $commodityId)
+            ->where('region_id', $regionId)
+            ->whereNull('prediction_batch_id')
+            ->delete();
+    }
+
     public function save(DomainPrediction $prediction): DomainPrediction
     {
         $data = [
@@ -34,6 +50,7 @@ class EloquentPredictionRepository implements PredictionRepositoryInterface
             'predicted_date' => $prediction->getPredictedDate()->format('Y-m-d'),
             'confidence' => $prediction->getConfidence(),
             'model_name' => $prediction->getModelName(),
+            'prediction_batch_id' => $prediction->getPredictionBatchId(),
         ];
 
         if ($prediction->getId()) {
@@ -62,6 +79,7 @@ class EloquentPredictionRepository implements PredictionRepositoryInterface
             modelName: $model->model_name,
         );
         $entity->setId($model->id);
+        $entity->setPredictionBatchId($model->prediction_batch_id);
         $entity->setCreatedAt($model->created_at);
         $entity->setUpdatedAt($model->updated_at);
 

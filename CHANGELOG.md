@@ -95,6 +95,60 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.2.0] — 2026-06-10
+
+### Added
+
+#### 🤖 Automated Weekly Predictions
+- **Artisan command** `predictions:generate-weekly` — generates 7-day forecasts for all commodity+region pairs (96 pairs, ~672 predictions) with cache-lock overlap protection
+- **Laravel scheduler** integration — runs automatically every Monday at 02:00 via `Schedule::command()->weekly()->mondays()->at('02:00')`
+- **Duplicate run prevention** — checks for existing completed batch in the last 7 days before creating a new one
+- **Manual trigger support** — command can still be invoked manually via `php artisan predictions:generate-weekly` or from the UI
+
+#### 🗂️ Prediction Batch Tracking
+- **`prediction_batches` table** — groups all predictions from a single weekly run with full lifecycle tracking
+- **Batch statuses**: `pending` → `processing` → `completed` / `failed` / `completed_with_insight`
+- **Progress counters**: `total_pairs`, `processed_pairs`, `total_predictions` for visibility into long-running batches
+- **Predictions linked to batches**: New `prediction_batch_id` FK on `predictions` (nullable, backward-compatible)
+
+#### 🧠 AI-Powered Market Insights (Groq)
+- **`AiInsightService`** — generates natural-language market trend summaries via Groq (OpenAI-compatible API)
+- **`GenerateAiInsightJob`** — queued job with 2 retry attempts, gracefully degrades if API is unreachable
+- **Configurable** via `GROQ_API_KEY`, `GROQ_MODEL`, `GROQ_ENDPOINT`, `GROQ_TIMEOUT` in `.env`
+- **Prompt in Bahasa Indonesia** — outputs plain-text summaries of price trends, top movers, and confidence levels
+
+#### ⚙️ Queue & Job Infrastructure
+- **`ProcessWeeklyPredictionsJob`** — processes all pairs in a single queued job with lightweight DB increment tracking
+- **`GenerateAiInsightJob`** — separate job for AI insight generation, decoupled from prediction math
+- **Database queue driver** — sufficient for weekly scale (~672 rows), uses existing `jobs` table
+- **`ShouldBeUnique`** — prevents duplicate job dispatching with 1-hour lock window
+
+#### 🖥️ UI Enhancements
+- **Batch status card** — displayed at top of predictions index showing batch ID, timestamps, status badge, and AI insight
+- **AI insight panel** — styled indigo card with safe-escaped text and generation timestamp
+- **Status badge component** `x-prediction-batch-status` — color-coded badges for all 5 statuses with Indonesian labels and spinner animation for processing state
+- **Empty state** — informative message when no batch exists yet, with command hint
+
+### Changed
+
+- **`PredictionService::generatePredictions()`** — now accepts optional `$predictionBatchId` parameter; uses `deleteByCommodityAndRegion()` with `whereNull('prediction_batch_id')` guard to preserve batch predictions
+- **`PredictionController::index()`** — loads latest batch and batch-specific predictions for the view
+- **`EloquentPredictionRepository`** — added `findByBatchId()`, `deleteByCommodityAndRegion()` with batch-safe guard
+
+### Fixed
+
+- **Manual prediction safety** — manual generate no longer deletes weekly batch predictions (guarded by `whereNull('prediction_batch_id')`)
+- **Job retry logic** — `GenerateAiInsightJob` now throws exception instead of calling `$this->fail()`, enabling proper queue retry mechanism
+- **Batch status accuracy** — `completed_with_insight` only set when AI insight is successfully generated, otherwise stays `completed`
+- **DB write performance** — `ProcessWeeklyPredictionsJob` uses lightweight `increment()` instead of full entity save per pair
+
+### Security
+
+- **AI insight output** — always escaped via Blade `{{ }}` auto-escaping to prevent XSS
+- **Batch isolation** — batch predictions are protected from manual deletion via `prediction_batch_id` null guard
+
+---
+
 ## [Unreleased]
 
 ### Planned
@@ -114,6 +168,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ```bash
 # Update version in config/app.php
 # Commit changes
-git tag v1.1.0
-git push origin v1.1.0
+git tag v1.2.0
+git push origin v1.2.0
 ```

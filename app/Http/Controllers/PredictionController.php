@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Application\Services\PredictionService;
 use App\Domain\Repositories\CommodityRepositoryInterface;
+use App\Domain\Repositories\PredictionBatchRepositoryInterface;
 use App\Domain\Repositories\PredictionRepositoryInterface;
 use App\Domain\Repositories\RegionRepositoryInterface;
 use Illuminate\Http\RedirectResponse;
@@ -17,12 +18,19 @@ class PredictionController extends Controller
         private PredictionRepositoryInterface $predictionRepository,
         private CommodityRepositoryInterface $commodityRepository,
         private RegionRepositoryInterface $regionRepository,
+        private PredictionBatchRepositoryInterface $predictionBatchRepository,
     ) {
     }
 
     public function index(): View
     {
         $predictions = $this->predictionRepository->all();
+
+        // Load latest batch info
+        $latestBatch = $this->predictionBatchRepository->findLatest();
+        $batchPredictions = $latestBatch
+            ? $this->predictionRepository->findByBatchId($latestBatch->getId())
+            : collect();
 
         // Build lookup maps for names
         $commodityMap = [];
@@ -34,7 +42,7 @@ class PredictionController extends Controller
             $regionMap[$r->getId()] = $r->getName();
         }
 
-        return view('predictions.index', compact('predictions', 'commodityMap', 'regionMap'));
+        return view('predictions.index', compact('predictions', 'commodityMap', 'regionMap', 'latestBatch', 'batchPredictions'));
     }
 
     public function create(): View

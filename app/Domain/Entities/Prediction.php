@@ -11,6 +11,7 @@ class Prediction
     private \DateTime $predictedDate;
     private ?float $confidence = null;
     private ?string $modelName = null;
+    private ?int $predictionBatchId = null;
     private ?string $createdAt = null;
     private ?string $updatedAt = null;
 
@@ -20,7 +21,8 @@ class Prediction
         float $predictedPrice,
         \DateTime $predictedDate,
         ?float $confidence = null,
-        ?string $modelName = null
+        ?string $modelName = null,
+        ?int $predictionBatchId = null
     ) {
         $this->commodityId = $commodityId;
         $this->regionId = $regionId;
@@ -28,6 +30,7 @@ class Prediction
         $this->predictedDate = $predictedDate;
         $this->confidence = $confidence;
         $this->modelName = $modelName;
+        $this->predictionBatchId = $predictionBatchId;
     }
 
     public function getId(): ?int
@@ -89,6 +92,17 @@ class Prediction
     public function setModelName(?string $modelName): void
     {
         $this->modelName = $modelName;
+    }
+
+    public function getPredictionBatchId(): ?int
+    {
+        return $this->predictionBatchId;
+    }
+
+    public function setPredictionBatchId(?int $predictionBatchId): static
+    {
+        $this->predictionBatchId = $predictionBatchId;
+        return $this;
     }
 
     public function getCreatedAt(): ?string
