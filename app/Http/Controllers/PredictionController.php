@@ -52,15 +52,12 @@ class PredictionController extends Controller
             $regionMap[$r->getId()] = $r->getName();
         }
 
-        $displayPredictions = $batchPredictions->isNotEmpty() ? $batchPredictions : $predictions;
-
         return view('predictions.index', compact(
             'predictions',
             'commodityMap',
             'regionMap',
             'latestBatch',
             'batchPredictions',
-            'displayPredictions',
             'commodities',
             'regions',
         ));

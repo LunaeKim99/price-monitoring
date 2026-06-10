@@ -98,18 +98,16 @@
     </div>
 
     <!-- Summary Cards -->
-    @php $hasActiveBatch = $batchPredictions->isNotEmpty(); @endphp
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
         <div class="bg-surface rounded-xl shadow-sm p-4 border border-border">
             <p class="text-sm text-text-muted">Total Prediksi</p>
-            <p class="text-2xl font-bold text-text-primary">{{ $hasActiveBatch ? $batchPredictions->count() : $predictions->total() }}</p>
+            <p class="text-2xl font-bold text-text-primary">{{ $predictions->total() }}</p>
         </div>
         <div class="bg-surface rounded-xl shadow-sm p-4 border border-border">
             <p class="text-sm text-text-muted">Rata-rata Confidence</p>
             <p class="text-2xl font-bold text-text-primary">
                 @php
-                    $confItems = $hasActiveBatch ? $batchPredictions : $predictions->getCollection();
-                    $confidences = $confItems->map(fn($p) => $p->getConfidence() ?? 0);
+                    $confidences = $predictions->getCollection()->map(fn($p) => $p->getConfidence() ?? 0);
                     $avgConf = $confidences->count() > 0 ? $confidences->avg() : 0;
                 @endphp
                 {{ number_format($avgConf * 100, 1) }}%
@@ -133,7 +131,7 @@
                     </tr>
                 </thead>
                 <tbody class="bg-surface divide-y divide-border">
-                    @forelse($displayPredictions as $prediction)
+                    @forelse($predictions as $prediction)
                         <tr class="hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors odd:bg-gray-50/50 dark:odd:bg-gray-700/30">
                             <td class="px-6 py-4 text-sm text-text-muted">{{ $prediction->getId() }}</td>
                             <td class="px-6 py-4 text-sm font-medium text-text-primary">
@@ -184,9 +182,7 @@
         </div>
     </div>
 
-    @if(!$hasActiveBatch)
-        <div class="mt-6 px-1">
-            {{ $predictions->appends(request()->query())->links() }}
-        </div>
-    @endif
+    <div class="mt-6 px-1">
+        {{ $predictions->appends(request()->query())->links() }}
+    </div>
 @endsection
