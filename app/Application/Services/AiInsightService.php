@@ -9,24 +9,22 @@ class AiInsightService
 {
     private string $apiKey;
     private string $endpoint;
-    private string $model;
+    private string $primaryModel;
+    private string $fallbackModel;
     private int $timeout;
 
     public function __construct()
     {
         $this->apiKey = config('services.groq.api_key', '');
         $this->endpoint = config('services.groq.endpoint', 'https://api.groq.com/openai/v1');
-        $this->model = config('services.groq.model', 'llama-3.3-70b-versatile');
+        $this->primaryModel = config('services.groq.primary_model', 'llama-3.3-70b-versatile');
+        $this->fallbackModel = config('services.groq.fallback_model', 'llama-3.1-8b-instant');
         $this->timeout = (int) config('services.groq.timeout', 30);
     }
 
     /**
-     * Generate AI-powered market insight summary in Bahasa Indonesia.
-     *
-     * @param array $predictionsData Array of prediction arrays with keys: commodity, region, price, date, confidence
-     * @param array $commodityMap commodityId => name
-     * @param array $regionMap regionId => name
-     * @return string|null
+     * Generate AI-powered market insight for batch predictions.
+     * Original method signature preserved for backward compatibility.
      */
     public function generateInsight(array $predictionsData, array $commodityMap, array $regionMap): ?string
     {
@@ -40,7 +38,51 @@ class AiInsightService
         }
 
         $prompt = $this->buildPrompt($predictionsData, $commodityMap, $regionMap);
+        return $this->callWithFallback($prompt);
+    }
 
+    /**
+     * Generate AI-powered dashboard market summary.
+     */
+    public function generateDashboardInsight(array $data): ?string
+    {
+        if (empty($this->apiKey)) {
+            Log::warning('AiInsightService: GROQ_API_KEY tidak dikonfigurasi.');
+            return null;
+        }
+
+        $prompt = $this->buildDashboardInsightPrompt($data);
+        return $this->callWithFallback($prompt);
+    }
+
+    /**
+     * Try primary model first, fallback on failure.
+     */
+    private function callWithFallback(string $prompt): ?string
+    {
+        $result = $this->tryModel($this->primaryModel, $prompt);
+
+        if ($result !== null) {
+            return $result;
+        }
+
+        Log::info('AiInsightService: Mencoba fallback model.', ['model' => $this->fallbackModel]);
+
+        $result = $this->tryModel($this->fallbackModel, $prompt);
+
+        if ($result !== null) {
+            return $result;
+        }
+
+        Log::error('AiInsightService: Semua model gagal.');
+        return null;
+    }
+
+    /**
+     * Execute a single model API call.
+     */
+    private function tryModel(string $model, string $prompt): ?string
+    {
         try {
             $response = Http::timeout($this->timeout)
                 ->withHeaders([
@@ -48,7 +90,7 @@ class AiInsightService
                     'Content-Type' => 'application/json',
                 ])
                 ->post($this->endpoint . '/chat/completions', [
-                    'model' => $this->model,
+                    'model' => $model,
                     'messages' => [
                         [
                             'role' => 'system',
@@ -70,11 +112,15 @@ class AiInsightService
                     return trim($content);
                 }
 
-                Log::warning('AiInsightService: Response tidak mengandung konten.', $response->json());
+                Log::warning('AiInsightService: Response tidak mengandung konten.', [
+                    'model' => $model,
+                    'response' => $response->json(),
+                ]);
                 return null;
             }
 
             Log::error('AiInsightService: Gagal memanggil API.', [
+                'model' => $model,
                 'status' => $response->status(),
                 'body' => $response->body(),
             ]);
@@ -82,6 +128,7 @@ class AiInsightService
             return null;
         } catch (\Exception $e) {
             Log::error('AiInsightService: Exception saat memanggil API.', [
+                'model' => $model,
                 'message' => $e->getMessage(),
             ]);
 
@@ -106,5 +153,23 @@ class AiInsightService
         $summary .= "Gunakan bahasa Indonesia yang natural. Jawab dalam bentuk paragraf naratif saja, tanpa markdown atau bullet points.";
 
         return $summary;
+    }
+
+    public function buildDashboardInsightPrompt(array $data): string
+    {
+        $prompt = "Berikut adalah data terkini pasar komoditas:\n\n";
+        $prompt .= "- Total komoditas: {$data['total_commodities']}\n";
+        $prompt .= "- Total wilayah: {$data['total_regions']}\n";
+        $prompt .= "- Total data harga: {$data['total_price_records']}\n";
+        $prompt .= "- Rata-rata harga: Rp {$data['average_price']}\n";
+        $prompt .= "- Arah tren: {$data['trend_direction']}\n";
+
+        if (!empty($data['trending_commodities'])) {
+            $prompt .= "- Komoditas terpopuler: " . implode(', ', $data['trending_commodities']) . "\n";
+        }
+
+        $prompt .= "\nBerdasarkan data di atas, berikan ringkasan kondisi pasar komoditas saat ini dalam Bahasa Indonesia. Jawab dalam bentuk paragraf naratif natural (bukan poin atau markdown). Sertakan sentimen pasar secara keseluruhan dan rekomendasi singkat.";
+
+        return $prompt;
     }
 }

@@ -2,11 +2,13 @@
 
 namespace App\Presentation\Blocs;
 
+use App\Application\Services\AiInsightService;
 use App\Application\Services\PriceCalculationService;
 use App\Application\UseCases\GetDashboardDataUseCase;
 use App\Domain\Repositories\CommodityRepositoryInterface;
 use App\Domain\Repositories\RegionRepositoryInterface;
 use App\Presentation\ViewModels\DashboardViewModel;
+use Illuminate\Support\Facades\Cache;
 
 class DashboardBloc
 {
@@ -15,6 +17,7 @@ class DashboardBloc
         private PriceCalculationService $priceCalculationService,
         private CommodityRepositoryInterface $commodityRepository,
         private RegionRepositoryInterface $regionRepository,
+        private AiInsightService $aiInsightService,
     ) {
     }
 
@@ -57,6 +60,34 @@ class DashboardBloc
             ];
         }, $dto->trendingCommodities);
 
+        // --- AI Market Insight (cached 1 hour) ---
+        $trendingNames = array_map(fn($c) => $c->getName(), $dto->trendingCommodities);
+
+        $aiData = Cache::remember('dashboard_ai_insight', 3600, function () use ($dto, $trend, $trendingNames, $commodityMap, $regionMap) {
+            $insight = $this->aiInsightService->generateDashboardInsight([
+                'total_commodities' => $dto->totalCommodities,
+                'total_regions' => $dto->totalRegions,
+                'total_price_records' => $dto->totalPriceRecords,
+                'average_price' => number_format($dto->averagePrice, 0, ',', '.'),
+                'trend_direction' => $trend,
+                'trending_commodities' => $trendingNames,
+                'price_trend_labels' => $dto->priceTrendLabels,
+                'price_trend_data' => $dto->priceTrendData,
+                'region_comparison_labels' => $dto->regionComparisonLabels,
+                'region_comparison_data' => $dto->regionComparisonData,
+                'latest_prices' => array_map(fn($r) => [
+                    'commodity' => $commodityMap[$r->getCommodityId()] ?? 'Unknown',
+                    'region' => $regionMap[$r->getRegionId()] ?? 'Unknown',
+                    'price' => $r->getPrice(),
+                ], $dto->latestPrices),
+            ]);
+
+            return [
+                'insight' => $insight,
+                'generated_at' => $insight ? now()->format('Y-m-d H:i:s') : null,
+            ];
+        });
+
         return DashboardViewModel::fromArray([
             'total_commodities' => $dto->totalCommodities,
             'total_regions' => $dto->totalRegions,
@@ -70,6 +101,8 @@ class DashboardBloc
             'price_trend_data' => $dto->priceTrendData,
             'region_comparison_labels' => $dto->regionComparisonLabels,
             'region_comparison_data' => $dto->regionComparisonData,
+            'ai_insight' => $aiData['insight'],
+            'ai_insight_generated_at' => $aiData['generated_at'],
         ]);
     }
 }

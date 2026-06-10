@@ -17,6 +17,8 @@ class DashboardViewModel
         public readonly array $priceTrendData = [],
         public readonly array $regionComparisonLabels = [],
         public readonly array $regionComparisonData = [],
+        public readonly ?string $aiInsight = null,
+        public readonly ?string $aiInsightGeneratedAt = null,
     ) {
     }
 
@@ -35,6 +37,8 @@ class DashboardViewModel
             priceTrendData: $data['price_trend_data'] ?? [],
             regionComparisonLabels: $data['region_comparison_labels'] ?? [],
             regionComparisonData: $data['region_comparison_data'] ?? [],
+            aiInsight: $data['ai_insight'] ?? null,
+            aiInsightGeneratedAt: $data['ai_insight_generated_at'] ?? null,
         );
     }
 }

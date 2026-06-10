@@ -63,6 +63,39 @@
         </div>
     </div>
 
+    <!-- AI Market Insight Panel -->
+    @if($viewModel->aiInsight)
+    <div class="mb-8">
+        <div class="bg-gradient-to-r from-indigo-600 to-purple-600 rounded-xl shadow-sm p-6 border border-indigo-400/30 relative overflow-hidden">
+            {{-- Decorative background icon --}}
+            <div class="absolute right-4 top-4 opacity-10">
+                <svg class="w-24 h-24 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
+                </svg>
+            </div>
+            <div class="relative z-10">
+                <div class="flex items-center gap-2 mb-3">
+                    <svg class="w-5 h-5 text-indigo-200" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"/>
+                    </svg>
+                    <h3 class="font-semibold text-white text-lg">Ringkasan Pasar (AI)</h3>
+                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-white/20 text-white/90">
+                        Diperbarui setiap jam
+                    </span>
+                </div>
+                <p class="text-white/90 text-sm leading-relaxed whitespace-pre-line">
+                    {{ $viewModel->aiInsight }}
+                </p>
+                @if($viewModel->aiInsightGeneratedAt)
+                    <p class="text-indigo-200 text-xs mt-3">
+                        Dihasilkan: {{ \Carbon\Carbon::parse($viewModel->aiInsightGeneratedAt)->format('d M Y H:i') }}
+                    </p>
+                @endif
+            </div>
+        </div>
+    </div>
+    @endif
+
     <!-- Charts Row -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
         <div class="bg-surface rounded-xl shadow-sm p-6 border border-border">
