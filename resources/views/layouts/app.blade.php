@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" x-data="themeManager()" :class="{ 'dark': isDark }">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" x-init="$store.theme.init()" :class="{ 'dark': $store.theme.isDark }">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">

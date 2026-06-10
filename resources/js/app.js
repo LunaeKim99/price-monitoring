@@ -3,7 +3,7 @@ import Chart from 'chart.js/auto';
 
 window.Chart = Chart;
 
-Alpine.data('themeManager', () => ({
+Alpine.store('theme', {
     isDark: false,
     theme: 'system',
 
@@ -41,7 +41,7 @@ Alpine.data('themeManager', () => ({
         this.theme = val;
         this.applyTheme();
     }
-}));
+});
 
 window.Alpine = Alpine;
 Alpine.start();
