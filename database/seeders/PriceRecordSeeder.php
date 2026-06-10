@@ -12,10 +12,17 @@ class PriceRecordSeeder extends Seeder
 {
     public function run(): void
     {
+        // Idempotency: skip if records already exist
+        if (PriceRecord::count() > 0) {
+            $this->command->info('Price records already exist. Skipping...');
+            return;
+        }
+
         $commodities = Commodity::all();
         $regions = Region::all();
 
         if ($commodities->isEmpty() || $regions->isEmpty()) {
+            $this->command->warn('Commodities or regions table is empty. Skipping PriceRecordSeeder.');
             return;
         }
 
@@ -35,30 +42,40 @@ class PriceRecordSeeder extends Seeder
         ];
 
         $now = Carbon::now();
+        $records = [];
 
         foreach ($commodities as $commodity) {
             $range = $priceRanges[$commodity->name] ?? [10000, 50000];
 
             foreach ($regions as $region) {
-                // Create 30 days of price data
-                for ($day = 29; $day >= 0; $day--) {
+                // 14 days of historical price data
+                for ($day = 13; $day >= 0; $day--) {
                     $date = $now->copy()->subDays($day);
                     $price = rand($range[0] * 100, $range[1] * 100) / 100;
-                    // Add some randomness to make it realistic
+                    // Add realistic fluctuation
                     $dayFactor = sin($day * 0.2) * 2000;
                     $price += $dayFactor;
                     $price = max($range[0], min($range[1], $price));
 
-                    PriceRecord::create([
+                    $records[] = [
                         'commodity_id' => $commodity->id,
                         'region_id' => $region->id,
                         'price' => round($price, 2),
                         'recorded_date' => $date->format('Y-m-d'),
                         'source' => 'Pasar Tradisional',
                         'notes' => 'Data otomatis',
-                    ]);
+                        'created_at' => $now,
+                        'updated_at' => $now,
+                    ];
                 }
             }
         }
+
+        // Batch insert in chunks of 500 for performance
+        foreach (array_chunk($records, 500) as $chunk) {
+            PriceRecord::insert($chunk);
+        }
+
+        $this->command->info('Created ' . count($records) . ' price records across ' . $commodities->count() . ' commodities and ' . $regions->count() . ' regions.');
     }
 }

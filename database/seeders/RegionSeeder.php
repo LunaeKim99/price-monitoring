@@ -10,18 +10,49 @@ class RegionSeeder extends Seeder
     public function run(): void
     {
         $provinces = [
-            ['name' => 'DKI Jakarta', 'type' => 'province'],
-            ['name' => 'Jawa Barat', 'type' => 'province'],
-            ['name' => 'Jawa Tengah', 'type' => 'province'],
-            ['name' => 'Jawa Timur', 'type' => 'province'],
-            ['name' => 'Sumatera Utara', 'type' => 'province'],
-            ['name' => 'Sulawesi Selatan', 'type' => 'province'],
-            ['name' => 'Bali', 'type' => 'province'],
-            ['name' => 'Kalimantan Timur', 'type' => 'province'],
+            'Aceh',
+            'Sumatera Utara',
+            'Sumatera Barat',
+            'Riau',
+            'Kepulauan Riau',
+            'Jambi',
+            'Sumatera Selatan',
+            'Kepulauan Bangka Belitung',
+            'Bengkulu',
+            'Lampung',
+            'DKI Jakarta',
+            'Jawa Barat',
+            'Banten',
+            'Jawa Tengah',
+            'DI Yogyakarta',
+            'Jawa Timur',
+            'Bali',
+            'Nusa Tenggara Barat',
+            'Nusa Tenggara Timur',
+            'Kalimantan Barat',
+            'Kalimantan Tengah',
+            'Kalimantan Selatan',
+            'Kalimantan Timur',
+            'Kalimantan Utara',
+            'Sulawesi Utara',
+            'Gorontalo',
+            'Sulawesi Tengah',
+            'Sulawesi Barat',
+            'Sulawesi Selatan',
+            'Sulawesi Tenggara',
+            'Maluku',
+            'Maluku Utara',
+            'Papua Barat',
+            'Papua',
         ];
 
-        foreach ($provinces as $province) {
-            Region::create($province);
+        foreach ($provinces as $name) {
+            Region::firstOrCreate(
+                ['name' => $name],
+                ['type' => 'province']
+            );
         }
+
+        $this->command->info('Created/verified ' . count($provinces) . ' provinces.');
     }
 }
