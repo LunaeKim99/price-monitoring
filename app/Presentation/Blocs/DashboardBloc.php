@@ -60,11 +60,14 @@ class DashboardBloc
             ];
         }, $dto->trendingCommodities);
 
-        // --- AI Market Insight (cached 1 hour) ---
+        // --- AI Market Insight (cached 1 hour, only if non-null) ---
         $trendingNames = array_map(fn($c) => $c->getName(), $dto->trendingCommodities);
 
-        $aiData = Cache::remember('dashboard_ai_insight', 3600, function () use ($dto, $trend, $trendingNames, $commodityMap, $regionMap) {
-            $insight = $this->aiInsightService->generateDashboardInsight([
+        $insight = null;
+        $generatedAt = null;
+
+        try {
+            $fresh = $this->aiInsightService->generateDashboardInsight([
                 'total_commodities' => $dto->totalCommodities,
                 'total_regions' => $dto->totalRegions,
                 'total_price_records' => $dto->totalPriceRecords,
@@ -82,11 +85,19 @@ class DashboardBloc
                 ], $dto->latestPrices),
             ]);
 
-            return [
-                'insight' => $insight,
-                'generated_at' => $insight ? now()->format('Y-m-d H:i:s') : null,
-            ];
-        });
+            if ($fresh !== null) {
+                $insight = $fresh;
+                $generatedAt = now()->format('Y-m-d H:i:s');
+                Cache::put('dashboard_ai_insight', ['insight' => $insight, 'generated_at' => $generatedAt], 3600);
+            }
+        } catch (\Throwable $e) {
+            // API failed — fall back to stale cache if available
+            $cached = Cache::get('dashboard_ai_insight');
+            if ($cached) {
+                $insight = $cached['insight'];
+                $generatedAt = $cached['generated_at'];
+            }
+        }
 
         return DashboardViewModel::fromArray([
             'total_commodities' => $dto->totalCommodities,
@@ -101,8 +112,8 @@ class DashboardBloc
             'price_trend_data' => $dto->priceTrendData,
             'region_comparison_labels' => $dto->regionComparisonLabels,
             'region_comparison_data' => $dto->regionComparisonData,
-            'ai_insight' => $aiData['insight'],
-            'ai_insight_generated_at' => $aiData['generated_at'],
+            'ai_insight' => $insight,
+            'ai_insight_generated_at' => $generatedAt,
         ]);
     }
 }
