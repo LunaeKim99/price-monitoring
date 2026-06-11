@@ -60,42 +60,50 @@ class DashboardBloc
             ];
         }, $dto->trendingCommodities);
 
-        // --- AI Market Insight (cached 1 hour, only if non-null) ---
+        // --- AI Market Insight (cache-first, fallback jika tidak ada cache) ---
         $trendingNames = array_map(fn($c) => $c->getName(), $dto->trendingCommodities);
 
         $insight = null;
         $generatedAt = null;
+        $aiStatus = 'ok';
 
-        try {
-            $fresh = $this->aiInsightService->generateDashboardInsight([
-                'total_commodities' => $dto->totalCommodities,
-                'total_regions' => $dto->totalRegions,
-                'total_price_records' => $dto->totalPriceRecords,
-                'average_price' => number_format($dto->averagePrice, 0, ',', '.'),
-                'trend_direction' => $trend,
-                'trending_commodities' => $trendingNames,
-                'price_trend_labels' => $dto->priceTrendLabels,
-                'price_trend_data' => $dto->priceTrendData,
-                'region_comparison_labels' => $dto->regionComparisonLabels,
-                'region_comparison_data' => $dto->regionComparisonData,
-                'latest_prices' => array_map(fn($r) => [
-                    'commodity' => $commodityMap[$r->getCommodityId()] ?? 'Unknown',
-                    'region' => $regionMap[$r->getRegionId()] ?? 'Unknown',
-                    'price' => $r->getPrice(),
-                ], $dto->latestPrices),
-            ]);
+        $cached = Cache::get('dashboard_ai_insight');
+        if ($cached) {
+            $insight = $cached['insight'];
+            $generatedAt = $cached['generated_at'];
+            $aiStatus = 'cached';
+        } elseif (empty(config('services.groq.api_key', ''))) {
+            $aiStatus = 'no_key';
+        } else {
+            try {
+                $fresh = $this->aiInsightService->generateDashboardInsight([
+                    'total_commodities' => $dto->totalCommodities,
+                    'total_regions' => $dto->totalRegions,
+                    'total_price_records' => $dto->totalPriceRecords,
+                    'average_price' => number_format($dto->averagePrice, 0, ',', '.'),
+                    'trend_direction' => $trend,
+                    'trending_commodities' => $trendingNames,
+                    'price_trend_labels' => $dto->priceTrendLabels,
+                    'price_trend_data' => $dto->priceTrendData,
+                    'region_comparison_labels' => $dto->regionComparisonLabels,
+                    'region_comparison_data' => $dto->regionComparisonData,
+                    'latest_prices' => array_map(fn($r) => [
+                        'commodity' => $commodityMap[$r->getCommodityId()] ?? 'Unknown',
+                        'region' => $regionMap[$r->getRegionId()] ?? 'Unknown',
+                        'price' => $r->getPrice(),
+                    ], $dto->latestPrices),
+                ]);
 
-            if ($fresh !== null) {
-                $insight = $fresh;
-                $generatedAt = now()->format('Y-m-d H:i:s');
-                Cache::put('dashboard_ai_insight', ['insight' => $insight, 'generated_at' => $generatedAt], 3600);
-            }
-        } catch (\Throwable $e) {
-            // API failed — fall back to stale cache if available
-            $cached = Cache::get('dashboard_ai_insight');
-            if ($cached) {
-                $insight = $cached['insight'];
-                $generatedAt = $cached['generated_at'];
+                if ($fresh !== null) {
+                    $insight = $fresh;
+                    $generatedAt = now()->format('Y-m-d H:i:s');
+                    Cache::put('dashboard_ai_insight', ['insight' => $insight, 'generated_at' => $generatedAt], 3600);
+                    $aiStatus = 'ok';
+                } else {
+                    $aiStatus = 'failed';
+                }
+            } catch (\Throwable $e) {
+                $aiStatus = 'failed';
             }
         }
 
@@ -114,6 +122,7 @@ class DashboardBloc
             'region_comparison_data' => $dto->regionComparisonData,
             'ai_insight' => $insight,
             'ai_insight_generated_at' => $generatedAt,
+            'ai_status' => $aiStatus,
         ]);
     }
 }

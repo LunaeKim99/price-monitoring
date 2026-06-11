@@ -63,7 +63,7 @@
         </div>
     </div>
 
-    <!-- AI Market Insight Panel -->
+    {{-- AI Market Insight Panel --}}
     @if($viewModel->aiInsight)
     <div class="mb-8">
         <div class="bg-gradient-to-r from-indigo-600 to-purple-600 rounded-xl shadow-sm p-6 border border-indigo-400/30 relative overflow-hidden">
@@ -79,9 +79,15 @@
                         <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"/>
                     </svg>
                     <h3 class="font-semibold text-white text-lg">Ringkasan Pasar (AI)</h3>
-                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-white/20 text-white/90">
-                        Diperbarui setiap jam
+                    @if($viewModel->aiStatus === 'cached')
+                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-amber-400/20 text-amber-200">
+                        Dari Cache
                     </span>
+                    @else
+                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-400/20 text-green-200">
+                        Live
+                    </span>
+                    @endif
                 </div>
                 <p class="text-white/90 text-sm leading-relaxed whitespace-pre-line">
                     {{ $viewModel->aiInsight }}
@@ -91,6 +97,30 @@
                         Dihasilkan: {{ \Carbon\Carbon::parse($viewModel->aiInsightGeneratedAt)->format('d M Y H:i') }}
                     </p>
                 @endif
+            </div>
+        </div>
+    </div>
+    @elseif($viewModel->aiStatus === 'no_key')
+    <div class="mb-8">
+        <div class="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700 rounded-xl p-4 flex items-start gap-3">
+            <svg class="w-5 h-5 text-amber-500 mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4.5c-.77-.833-2.694-.833-3.464 0L3.34 16.5c-.77.833.192 2.5 1.732 2.5z"/>
+            </svg>
+            <div>
+                <p class="text-sm font-medium text-amber-800 dark:text-amber-200">Wawasan AI belum aktif</p>
+                <p class="text-xs text-amber-600 dark:text-amber-400 mt-1">Konfigurasikan <code class="bg-amber-100 dark:bg-amber-800 px-1 rounded">GROQ_API_KEY</code> di <code>.env</code> untuk mengaktifkan ringkasan pasar berbasis AI.</p>
+            </div>
+        </div>
+    </div>
+    @elseif($viewModel->aiStatus === 'failed')
+    <div class="mb-8">
+        <div class="bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-xl p-4 flex items-start gap-3">
+            <svg class="w-5 h-5 text-gray-400 mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"/>
+            </svg>
+            <div>
+                <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Ringkasan AI untuk sementara tidak tersedia</p>
+                <p class="text-xs text-gray-500 dark:text-gray-500 mt-1">Silakan coba lagi nanti atau periksa koneksi layanan AI.</p>
             </div>
         </div>
     </div>

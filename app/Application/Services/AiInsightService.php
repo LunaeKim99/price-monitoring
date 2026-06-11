@@ -51,6 +51,11 @@ class AiInsightService
             return null;
         }
 
+        if (empty($data)) {
+            Log::warning('AiInsightService: Data kosong untuk dashboard insight.');
+            return null;
+        }
+
         $prompt = $this->buildDashboardInsightPrompt($data);
         return $this->callWithFallback($prompt);
     }
@@ -63,6 +68,7 @@ class AiInsightService
         $result = $this->tryModel($this->primaryModel, $prompt);
 
         if ($result !== null) {
+            Log::info('AiInsightService: Primary model berhasil.', ['model' => $this->primaryModel]);
             return $result;
         }
 
@@ -89,7 +95,7 @@ class AiInsightService
                     'Authorization' => 'Bearer ' . $this->apiKey,
                     'Content-Type' => 'application/json',
                 ])
-                ->post($this->endpoint . '/chat/completions', [
+                ->post(rtrim($this->endpoint, '/') . '/chat/completions', [
                     'model' => $model,
                     'messages' => [
                         [

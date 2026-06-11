@@ -19,6 +19,7 @@ class DashboardViewModel
         public readonly array $regionComparisonData = [],
         public readonly ?string $aiInsight = null,
         public readonly ?string $aiInsightGeneratedAt = null,
+        public readonly string $aiStatus = 'ok',
     ) {
     }
 
@@ -39,6 +40,7 @@ class DashboardViewModel
             regionComparisonData: $data['region_comparison_data'] ?? [],
             aiInsight: $data['ai_insight'] ?? null,
             aiInsightGeneratedAt: $data['ai_insight_generated_at'] ?? null,
+            aiStatus: $data['ai_status'] ?? 'ok',
         );
     }
 }
