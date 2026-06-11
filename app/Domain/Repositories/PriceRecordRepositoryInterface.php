@@ -37,4 +37,8 @@ interface PriceRecordRepositoryInterface
     public function getRecordsBetweenDates(\DateTime $from, \DateTime $to): Collection;
 
     public function getLatestByCommodityAndRegion(int $commodityId, int $regionId, int $limit = 60): Collection;
+
+    public function existsForDate(int $commodityId, int $regionId, \DateTime $date): bool;
+
+    public function findLatestPrice(int $commodityId, int $regionId): ?PriceRecord;
 }

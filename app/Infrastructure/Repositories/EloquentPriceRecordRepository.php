@@ -134,6 +134,24 @@ class EloquentPriceRecordRepository implements PriceRecordRepositoryInterface
             ->map(fn(PriceRecord $model) => $this->toDomain($model));
     }
 
+    public function existsForDate(int $commodityId, int $regionId, \DateTime $date): bool
+    {
+        return PriceRecord::where('commodity_id', $commodityId)
+            ->where('region_id', $regionId)
+            ->whereDate('recorded_date', $date->format('Y-m-d'))
+            ->exists();
+    }
+
+    public function findLatestPrice(int $commodityId, int $regionId): ?DomainPriceRecord
+    {
+        $model = PriceRecord::where('commodity_id', $commodityId)
+            ->where('region_id', $regionId)
+            ->orderBy('recorded_date', 'desc')
+            ->first();
+
+        return $model ? $this->toDomain($model) : null;
+    }
+
     public function getAggregateStats(PriceFilter $filter): array
     {
         $query = PriceRecord::query();
