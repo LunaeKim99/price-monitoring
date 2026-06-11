@@ -403,7 +403,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
         if (trendLabels.length > 0) {
             window.priceTrendChart = new Chart(trendEl.getContext('2d'), {
-            trendChart = window.priceTrendChart;
                 type: 'line',
                 data: {
                     labels: trendLabels,
@@ -440,6 +439,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     }
                 }
             });
+            trendChart = window.priceTrendChart;
         }
 
         if (regionLabels.length > 0) {
