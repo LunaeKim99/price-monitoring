@@ -214,10 +214,26 @@ vendor/bin/phpcbf --standard=PSR12 --extensions=php app/
 | POST | `/predictions/generate` | Generate predictions (manual) |
 | DELETE | `/predictions/{id}` | Delete prediction |
 | Artisan | `predictions:generate-weekly` | Generate weekly predictions (scheduled Monday 02:30 WIB) |
+| Artisan | `predictions:cleanup` | Purge old prediction payloads, retain latest batch only (scheduled Monday 03:00 WIB) |
 | Artisan | `prices:scrape` | Scrape weekly price data from Kemendag (scheduled Monday 02:00 WIB) |
 | Artisan | `news:scrape` | Scrape commodity news from RSS feeds (scheduled daily 01:00 WIB) |
 | GET/POST | `/login` | Login form / authenticate |
 | POST | `/logout` | Logout |
+
+## 🧹 Prediction Cleanup
+
+Old prediction payloads are automatically purged after each weekly generation to save storage. The `prediction_batches` metadata and manual predictions (without batch ID) are preserved.
+
+```bash
+# Cek dulu berapa row yang akan dihapus (aman, tidak delete)
+php artisan predictions:cleanup --dry-run
+
+# Jalankan cleanup manual
+php artisan predictions:cleanup
+
+# Otomatis jalan setiap Senin jam 03:00 via scheduler
+php artisan schedule:run
+```
 
 ## 🔒 Security
 
@@ -242,6 +258,7 @@ vendor/bin/phpcbf --standard=PSR12 --extensions=php app/
 - [x] Dark mode toggle
 - [x] Automated price scraping (Kemendag API/CSV)
 - [x] Commodity news scraper (RSS feeds + AI enrichment)
+- [x] Prediction payload cleanup (auto-purge + scheduled + dry-run)
 - [ ] CSV/Excel import/export
 - [ ] MySQL production migration
 - [ ] MongoDB adapter implementation

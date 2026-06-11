@@ -206,6 +206,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **Prediction payload cleanup**: Old prediction rows from previous batches are automatically purged after each weekly generation, retaining only the latest batch's predictions. Metadata in `prediction_batches` is preserved.
+- **`predictions:cleanup` Artisan command**: Manual or scheduled cleanup with `--dry-run` mode to preview deleted rows before executing.
+- **Scheduled cleanup**: Runs every Monday at 03:00 WIB (30 min after weekly prediction generation) via Laravel scheduler.
+
 ### Planned
 
 - [ ] CSV/Excel import/export for price records
