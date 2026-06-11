@@ -171,6 +171,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **34 provinces**: `RegionSeeder` expanded from 8 to all 34 Indonesian provinces, covering Aceh to Papua
 - **Seeder optimization**: `PriceRecordSeeder` now inserts in chunks of 500 instead of 1 record at a time (~40× faster seeding)
 
+#### 📡 Price Scraper (Kemendag)
+- **`PriceScraperService`** — scrapes weekly price data from Kemendag CSV/API, maps commodity names and regions, deduplicates by date+commodity+region
+- **`ScrapePrices` command** (`prices:scrape`) — supports `--date`, `--source`, `--dry-run` options, protected by `Cache::lock` (7200s)
+- **`ScrapePricesJob`** — queued job (ShouldBeUnique, tries=2, backoff=300)
+- **`ScrapeLog` model + migration** (`scrape_logs` table) — tracks each scrape run (source, status, counts, errors)
+- **Scheduled every Monday 02:00 WIB** — automated weekly data ingestion before prediction generation
+- **Repository layer** — `existsForDate()` prevents duplicate records; `findLatestPrice()` for quick lookups
+- **CSV fallback** — `database/data/weekly_update.csv` as fallback when API is unreachable
+
+#### 📰 News Scraper (RSS Feeds)
+- **`NewsScraperService`** — scrapes commodity-related news from 3 RSS sources (Kontan, Detik Finance, Google News)
+- **Relevance filtering** — 12 commodity keywords (`harga`, `beras`, `cabai`, etc.); extracts commodity tags via keyword matching
+- **`ScrapeNews` command** (`news:scrape`) — with `--dry-run` option, `Cache::lock` (3600s) overlap protection
+- **`ScrapeNewsJob`** — queued job (ShouldBeUnique, tries=2, backoff=300)
+- **`NewsArticle` model + migration** (`news_articles` table) — stores title, url (unique), source, published_at, commodity_tags (JSON), is_relevant
+- **AI insight enrichment** — `AiInsightService` receives up to 8 recent news articles as context; backward-compatible via default `[]` parameter
+- **Scheduled daily at 01:00 WIB** — runs before price scrape (02:00) and prediction generation (02:30)
+
 ### Changed
 
 - **Dark mode state**: Migrated from `Alpine.data('themeManager')` component-scoped state to `Alpine.store('theme')` — global reactivity eliminates toggle flicker across page navigation

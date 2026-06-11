@@ -10,7 +10,9 @@ A web-based dashboard for monitoring and tracking basic food commodity prices. B
 - **Price Records** — Record daily prices per commodity per region with filtering by date, commodity, and region
 - **Price Predictions** — Generate future price forecasts using SMA-7 + Linear Regression with confidence scoring (7/14/30-day periods)
 - **Automated Weekly Predictions** — Scheduled weekly generation of 7-day forecasts for all commodity+region pairs
-- **AI Market Insights** — Natural-language trend summaries powered by Groq (OpenAI-compatible API) with dual-model fallback
+- **AI Market Insights** — Natural-language trend summaries powered by Groq (OpenAI-compatible API) with dual-model fallback and news-context enrichment
+- **Price Scraper** — Automated weekly price data ingestion from Kemendag API/CSV every Monday 02:00 WIB
+- **News Scraper** — Daily commodity news aggregation from 3 RSS sources (01:00 WIB) enriching AI insights
 - **Prediction Batch Tracking** — Full lifecycle tracking with status monitoring (pending/processing/completed/failed)
 - **Dark Mode** — System-aware and manual dark mode toggle persisted in `localStorage`
 - **Authentication** — Simple session-based login/logout
@@ -179,6 +181,8 @@ vendor/bin/phpcbf --standard=PSR12 --extensions=php app/
 | `price_records` | Daily price observations per commodity per region |
 | `predictions` | Future price predictions (extensible) |
 | `prediction_batches` | Weekly prediction runs with status, AI insight, and batch metadata |
+| `scrape_logs` | Price scraper run logs (source, status, item counts, error details) |
+| `news_articles` | Scraped commodity news articles (title, source, URL unique, commodity tags, relevance flag) |
 
 ### Environment Variables
 
@@ -189,6 +193,7 @@ vendor/bin/phpcbf --standard=PSR12 --extensions=php app/
 | `GROQ_FALLBACK_MODEL` | Fallback LLM if primary fails | `llama-3.1-8b-instant` |
 | `GROQ_ENDPOINT` | Groq API base URL | `https://api.groq.com/openai/v1` |
 | `GROQ_TIMEOUT` | API request timeout in seconds | `30` |
+| `PRICE_SCRAPE_SOURCE` | Price scraper data source (`auto`, `api`, `csv`) | `auto` |
 
 ### Future Migration
 
@@ -208,7 +213,9 @@ vendor/bin/phpcbf --standard=PSR12 --extensions=php app/
 | GET | `/predictions/create` | Prediction form |
 | POST | `/predictions/generate` | Generate predictions (manual) |
 | DELETE | `/predictions/{id}` | Delete prediction |
-| Artisan | `predictions:generate-weekly` | Generate weekly predictions (scheduled every Monday 02:00) |
+| Artisan | `predictions:generate-weekly` | Generate weekly predictions (scheduled Monday 02:30 WIB) |
+| Artisan | `prices:scrape` | Scrape weekly price data from Kemendag (scheduled Monday 02:00 WIB) |
+| Artisan | `news:scrape` | Scrape commodity news from RSS feeds (scheduled daily 01:00 WIB) |
 | GET/POST | `/login` | Login form / authenticate |
 | POST | `/logout` | Logout |
 
@@ -233,6 +240,8 @@ vendor/bin/phpcbf --standard=PSR12 --extensions=php app/
 - [x] Automated weekly predictions with batch tracking
 - [x] AI-powered market insights (Groq integration)
 - [x] Dark mode toggle
+- [x] Automated price scraping (Kemendag API/CSV)
+- [x] Commodity news scraper (RSS feeds + AI enrichment)
 - [ ] CSV/Excel import/export
 - [ ] MySQL production migration
 - [ ] MongoDB adapter implementation
