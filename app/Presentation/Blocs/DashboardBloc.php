@@ -28,8 +28,9 @@ class DashboardBloc
         $prices = array_map(fn($record) => $record->getPrice(), $dto->latestPrices);
         $trend = $this->priceCalculationService->calculateTrend($prices);
 
+        $allCommoditiesCollection = $this->commodityRepository->all();
         $commodityMap = [];
-        foreach ($this->commodityRepository->all() as $c) {
+        foreach ($allCommoditiesCollection as $c) {
             $commodityMap[$c->getId()] = $c->getName();
         }
         $regionMap = [];
@@ -123,6 +124,10 @@ class DashboardBloc
             'ai_insight' => $insight,
             'ai_insight_generated_at' => $generatedAt,
             'ai_status' => $aiStatus,
+            'all_commodities' => $allCommoditiesCollection->map(fn($c) => [
+                'id' => $c->getId(),
+                'name' => $c->getName(),
+            ])->values()->toArray(),
         ]);
     }
 }

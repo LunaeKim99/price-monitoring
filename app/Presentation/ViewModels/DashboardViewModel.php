@@ -20,6 +20,7 @@ class DashboardViewModel
         public readonly ?string $aiInsight = null,
         public readonly ?string $aiInsightGeneratedAt = null,
         public readonly string $aiStatus = 'ok',
+        public readonly array $allCommodities = [],
     ) {
     }
 
@@ -41,6 +42,7 @@ class DashboardViewModel
             aiInsight: $data['ai_insight'] ?? null,
             aiInsightGeneratedAt: $data['ai_insight_generated_at'] ?? null,
             aiStatus: $data['ai_status'] ?? 'ok',
+            allCommodities: $data['all_commodities'] ?? [],
         );
     }
 }

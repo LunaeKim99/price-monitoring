@@ -161,13 +161,87 @@
 
 {{-- ZONA 3: Charts --}}
 <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 mb-8">
-    <div class="lg:col-span-7 bg-surface rounded-xl shadow-sm p-6 border border-border">
-        <h3 class="text-base font-semibold text-text-primary mb-4">
-            Tren Harga Rata-rata (30 Hari Terakhir)
-        </h3>
+    <div class="lg:col-span-7 bg-surface rounded-xl shadow-sm p-6 border border-border relative"
+         x-data="{
+             selectedId: 0,
+             selectedName: 'Semua Komoditas',
+             loading: false,
+             fetchChartData(commodityId) {
+                 this.loading = true;
+                 fetch('{{ route('dashboard.chart-data') }}?commodity_id=' + commodityId)
+                     .then(r => r.json())
+                     .then(res => {
+                         this.selectedName = res.commodityName;
+                         if (window.priceTrendChart) {
+                             window.priceTrendChart.data.labels = res.labels;
+                             window.priceTrendChart.data.datasets[0].data = res.data;
+                             window.priceTrendChart.update('active');
+                         }
+                     })
+                     .finally(() => { this.loading = false; });
+             }
+         }">
+        <div class="flex items-center justify-between mb-4">
+            <div>
+                <h3 class="text-base font-semibold text-text-primary">
+                    Tren Harga Rata-rata (30 Hari Terakhir)
+                </h3>
+                <p class="text-xs text-text-muted mt-0.5" x-text="selectedName"></p>
+            </div>
+            {{-- Dropdown filter --}}
+            <div class="relative" x-data="{ open: false }">
+                <button @click="open = !open"
+                        class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium
+                               border border-border hover:bg-surface-secondary text-text-secondary transition-colors">
+                    <span x-text="selectedName">Semua Komoditas</span>
+                    <svg class="w-3.5 h-3.5 transition-transform" :class="{ 'rotate-180': open }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                    </svg>
+                </button>
+                <div x-show="open"
+                     @click.away="open = false"
+                     x-transition:enter="transition ease-out duration-100"
+                     x-transition:enter-start="opacity-0 scale-95"
+                     x-transition:enter-end="opacity-100 scale-100"
+                     x-transition:leave="transition ease-in duration-75"
+                     x-transition:leave-start="opacity-100 scale-100"
+                     x-transition:leave-end="opacity-0 scale-95"
+                     class="absolute right-0 mt-1 w-52 bg-surface border border-border rounded-xl
+                            shadow-lg z-50 overflow-hidden py-1"
+                     style="display: none;">
+                    <button @click="open = false; selectedId = 0; selectedName = 'Semua Komoditas'; fetchChartData(0)"
+                            class="w-full text-left px-4 py-2 text-sm hover:bg-surface-secondary transition-colors flex items-center gap-2"
+                            :class="selectedId === 0 ? 'text-brand-600 font-medium' : 'text-text-primary'">
+                        <svg class="w-3.5 h-3.5 shrink-0" x-show="selectedId === 0" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                        </svg>
+                        <span :class="selectedId !== 0 ? 'ml-5' : ''">Semua Komoditas</span>
+                    </button>
+                    <div class="border-t border-border my-1"></div>
+                    @foreach($viewModel->allCommodities as $c)
+                    <button @click="open = false; selectedId = {{ $c['id'] }}; selectedName = '{{ $c['name'] }}'; fetchChartData({{ $c['id'] }})"
+                            class="w-full text-left px-4 py-2 text-sm hover:bg-surface-secondary transition-colors flex items-center gap-2"
+                            :class="selectedId === {{ $c['id'] }} ? 'text-brand-600 font-medium' : 'text-text-primary'">
+                        <svg class="w-3.5 h-3.5 shrink-0" x-show="selectedId === {{ $c['id'] }}" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                        </svg>
+                        <span :class="selectedId !== {{ $c['id'] }} ? 'ml-5' : ''">{{ $c['name'] }}</span>
+                    </button>
+                    @endforeach
+                </div>
+            </div>
+        </div>
         @if(count($viewModel->priceTrendLabels) > 0)
         <div class="relative h-[320px]">
             <canvas id="priceTrendChart"></canvas>
+            {{-- Loading overlay --}}
+            <div x-show="loading"
+                 class="absolute inset-0 bg-surface/60 dark:bg-gray-900/60 rounded-lg flex items-center justify-center z-10">
+                <svg class="animate-spin h-8 w-8 text-brand-500" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
+                </svg>
+            </div>
         </div>
         @else
         <x-chart-placeholder message="Belum ada data tren harga." />
@@ -306,9 +380,11 @@ document.addEventListener('DOMContentLoaded', function () {
     const regionData = @json($viewModel->regionComparisonData);
 
     let trendChart = null;
+    window.priceTrendChart = null;
     let regionChart = null;
 
     function createCharts() {
+        if (window.priceTrendChart) window.priceTrendChart.destroy();
         if (trendChart) trendChart.destroy();
         if (regionChart) regionChart.destroy();
 
@@ -326,7 +402,8 @@ document.addEventListener('DOMContentLoaded', function () {
         const tickColor = isDark ? '#9ca3af' : '#6b7280';
 
         if (trendLabels.length > 0) {
-            trendChart = new Chart(trendEl.getContext('2d'), {
+            window.priceTrendChart = new Chart(trendEl.getContext('2d'), {
+            trendChart = window.priceTrendChart;
                 type: 'line',
                 data: {
                     labels: trendLabels,

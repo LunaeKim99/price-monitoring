@@ -124,6 +124,23 @@ class EloquentPriceRecordRepository implements PriceRecordRepositoryInterface
             ->map(fn(PriceRecord $model) => $this->toDomain($model));
     }
 
+    public function getRecordsBetweenDatesByCommodity(
+        \DateTime $from,
+        \DateTime $to,
+        ?int $commodityId = null
+    ): Collection {
+        $query = PriceRecord::whereBetween('recorded_date', [
+            $from->format('Y-m-d'),
+            $to->format('Y-m-d'),
+        ])->orderBy('recorded_date', 'asc');
+
+        if ($commodityId !== null) {
+            $query->where('commodity_id', $commodityId);
+        }
+
+        return $query->get()->map(fn(PriceRecord $model) => $this->toDomain($model));
+    }
+
     public function getLatestByCommodityAndRegion(int $commodityId, int $regionId, int $limit = 60): Collection
     {
         return PriceRecord::where('commodity_id', $commodityId)

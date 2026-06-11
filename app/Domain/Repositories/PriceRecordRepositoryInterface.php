@@ -36,6 +36,16 @@ interface PriceRecordRepositoryInterface
 
     public function getRecordsBetweenDates(\DateTime $from, \DateTime $to): Collection;
 
+    /**
+     * Get records between dates, optionally filtered by commodity.
+     * If commodityId is null, returns all commodities (same as getRecordsBetweenDates).
+     */
+    public function getRecordsBetweenDatesByCommodity(
+        \DateTime $from,
+        \DateTime $to,
+        ?int $commodityId = null
+    ): Collection;
+
     public function getLatestByCommodityAndRegion(int $commodityId, int $regionId, int $limit = 60): Collection;
 
     public function existsForDate(int $commodityId, int $regionId, \DateTime $date): bool;
