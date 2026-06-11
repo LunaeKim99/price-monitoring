@@ -99,6 +99,7 @@ class AiInsightService
                     'Authorization' => 'Bearer ' . $this->apiKey,
                     'Content-Type' => 'application/json',
                 ])
+                ->withoutVerifying()
                 ->post(rtrim($this->endpoint, '/') . '/chat/completions', [
                     'model' => $model,
                     'messages' => [

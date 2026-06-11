@@ -29,6 +29,9 @@ Route::middleware('auth')->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])
         ->name('dashboard');
 
+    Route::post('/dashboard/refresh-insight', [DashboardController::class, 'refreshInsight'])
+        ->name('dashboard.refresh-insight');
+
     Route::resource('commodities', CommodityController::class)
         ->only(['index', 'create', 'store', 'edit', 'update', 'destroy']);
 
