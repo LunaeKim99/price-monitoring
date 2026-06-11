@@ -26,8 +26,12 @@ class AiInsightService
      * Generate AI-powered market insight for batch predictions.
      * Original method signature preserved for backward compatibility.
      */
-    public function generateInsight(array $predictionsData, array $commodityMap, array $regionMap): ?string
-    {
+    public function generateInsight(
+        array $predictionsData,
+        array $commodityMap,
+        array $regionMap,
+        array $newsContext = []
+    ): ?string {
         if (empty($this->apiKey)) {
             Log::warning('AiInsightService: GROQ_API_KEY tidak dikonfigurasi.');
             return null;
@@ -37,7 +41,7 @@ class AiInsightService
             return 'Tidak ada data prediksi yang tersedia untuk dianalisis.';
         }
 
-        $prompt = $this->buildPrompt($predictionsData, $commodityMap, $regionMap);
+        $prompt = $this->buildPrompt($predictionsData, $commodityMap, $regionMap, $newsContext);
         return $this->callWithFallback($prompt);
     }
 
@@ -142,8 +146,12 @@ class AiInsightService
         }
     }
 
-    private function buildPrompt(array $predictionsData, array $commodityMap, array $regionMap): string
-    {
+    private function buildPrompt(
+        array $predictionsData,
+        array $commodityMap,
+        array $regionMap,
+        array $newsContext = []
+    ): string {
         $summary = "Berikut adalah data prediksi harga komoditas terbaru:\n\n";
 
         foreach ($predictionsData as $data) {
@@ -157,6 +165,15 @@ class AiInsightService
         $summary .= "2. Tiga komoditas dengan pergerakan harga paling signifikan\n";
         $summary .= "3. Tingkat kepercayaan (confidence) secara keseluruhan\n";
         $summary .= "Gunakan bahasa Indonesia yang natural. Jawab dalam bentuk paragraf naratif saja, tanpa markdown atau bullet points.";
+
+        if (!empty($newsContext)) {
+            $summary .= "\n\n=== KONTEKS BERITA TERBARU ===\n";
+            $summary .= "Berita terkait komoditas dalam 7 hari terakhir:\n\n";
+            foreach (array_slice($newsContext, 0, 8) as $news) {
+                $summary .= "- {$news['title']} ({$news['source']})\n";
+            }
+            $summary .= "\nGunakan konteks berita di atas jika relevan dengan analisis harga.\n";
+        }
 
         return $summary;
     }

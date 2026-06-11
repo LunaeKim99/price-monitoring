@@ -7,6 +7,7 @@ use App\Domain\Repositories\CommodityRepositoryInterface;
 use App\Domain\Repositories\PredictionBatchRepositoryInterface;
 use App\Domain\Repositories\PredictionRepositoryInterface;
 use App\Domain\Repositories\RegionRepositoryInterface;
+use App\Models\NewsArticle;
 use Carbon\Carbon;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -82,7 +83,28 @@ class GenerateAiInsightJob implements ShouldQueue
                 ];
             }
 
-            $insight = $aiInsightService->generateInsight($predictionsData, $commodityMap, $regionMap);
+            // Load recent relevant news for context enrichment
+            $newsContext = [];
+            try {
+                $recentNews = NewsArticle::where('is_relevant', true)
+                    ->where('published_at', '>=', Carbon::now()->subDays(7))
+                    ->orderBy('published_at', 'desc')
+                    ->limit(10)
+                    ->get();
+
+                foreach ($recentNews as $article) {
+                    $newsContext[] = [
+                        'title'  => $article->title,
+                        'source' => $article->source,
+                    ];
+                }
+            } catch (\Exception $e) {
+                Log::warning('GenerateAiInsightJob: Gagal memuat berita.', [
+                    'message' => $e->getMessage(),
+                ]);
+            }
+
+            $insight = $aiInsightService->generateInsight($predictionsData, $commodityMap, $regionMap, $newsContext);
 
             $batch->setAiInsight($insight);
             $batch->setAiInsightGeneratedAt(Carbon::now());
