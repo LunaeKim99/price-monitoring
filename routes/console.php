@@ -31,3 +31,11 @@ Schedule::command('predictions:generate-weekly')
     ->withoutOverlapping(600)
     ->runInBackground()
     ->appendOutputTo(storage_path('logs/predictions-weekly.log'));
+
+// Step 3 — Cleanup predictions lama (Senin 03:00 WIB, setelah generate selesai)
+Schedule::command('predictions:cleanup')
+    ->weeklyOn(1, '03:00')
+    ->timezone('Asia/Jakarta')
+    ->withoutOverlapping(600)
+    ->runInBackground()
+    ->appendOutputTo(storage_path('logs/predictions-cleanup.log'));

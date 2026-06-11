@@ -21,4 +21,14 @@ interface PredictionRepositoryInterface
     public function findByBatchId(int $batchId): Collection;
 
     public function deleteByCommodityAndRegion(int $commodityId, int $regionId): void;
+
+    /**
+     * Delete all predictions that do NOT belong to the given batch ID.
+     * Used to purge old prediction payloads while keeping batch metadata.
+     * Predictions without a batch_id (manual entries) are preserved.
+     *
+     * @param int $keepBatchId Batch ID to preserve
+     * @return int Number of deleted rows
+     */
+    public function deleteAllExceptBatch(int $keepBatchId): int;
 }

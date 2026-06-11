@@ -5,6 +5,7 @@ namespace App\Jobs;
 use App\Application\Services\PredictionService;
 use App\Domain\Repositories\CommodityRepositoryInterface;
 use App\Domain\Repositories\PredictionBatchRepositoryInterface;
+use App\Domain\Repositories\PredictionRepositoryInterface;
 use App\Domain\Repositories\RegionRepositoryInterface;
 use Carbon\Carbon;
 use Illuminate\Bus\Queueable;
@@ -38,6 +39,7 @@ class ProcessWeeklyPredictionsJob implements ShouldQueue, ShouldBeUnique
         CommodityRepositoryInterface $commodityRepository,
         RegionRepositoryInterface $regionRepository,
         PredictionService $predictionService,
+        PredictionRepositoryInterface $predictionRepository,
     ): void {
         $batch = $batchRepository->findById($this->batchId);
 
@@ -95,6 +97,13 @@ class ProcessWeeklyPredictionsJob implements ShouldQueue, ShouldBeUnique
 
             // Dispatch AI insight generation
             GenerateAiInsightJob::dispatch($this->batchId);
+
+            // Purge predictions dari batch lama (hemat storage)
+            $deleted = $predictionRepository->deleteAllExceptBatch($this->batchId);
+            Log::info('ProcessWeeklyPredictionsJob: Purged old predictions.', [
+                'kept_batch_id' => $this->batchId,
+                'deleted_rows'  => $deleted,
+            ]);
 
         } catch (\Exception $e) {
             Log::error('ProcessWeeklyPredictionsJob: Gagal memproses batch.', [

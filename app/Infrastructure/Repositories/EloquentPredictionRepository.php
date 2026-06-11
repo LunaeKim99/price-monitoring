@@ -59,6 +59,13 @@ class EloquentPredictionRepository implements PredictionRepositoryInterface
             ->delete();
     }
 
+    public function deleteAllExceptBatch(int $keepBatchId): int
+    {
+        return Prediction::where('prediction_batch_id', '!=', $keepBatchId)
+            ->whereNotNull('prediction_batch_id')
+            ->delete();
+    }
+
     public function save(DomainPrediction $prediction): DomainPrediction
     {
         $data = [
